@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --panel-2: #eef0f4;
+  --text: #11151c;
+  --sub: #5c6472;
+  --line: #e2e5ea;
+}
+.dark {
+  --bg: #0a0f1a;
+  --panel: #111726;
+  --panel-2: #161e30;
+  --text: #e7eaf1;
+  --sub: #8b93a7;
+  --line: #232c42;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}

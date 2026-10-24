@@ -1,0 +1,30 @@
+# Docker Compose untuk DEVELOPMENT LOKAL.
+# Tidak membuka port publik, tidak menjalankan deployment otomatis ke VPS mana pun.
+# Konfigurasi production (domain, HTTPS, reverse proxy) disiapkan terpisah — lihat README.md di folder ini.
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    env_file:
+      - ../backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      # Volume bernama (persistent) — database TIDAK hilang saat container dibuat ulang.
+      - garda_cyber_db:/app/data
+    environment:
+      DATABASE_URL: sqlite:////app/data/garda_cyber.db
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  garda_cyber_db:

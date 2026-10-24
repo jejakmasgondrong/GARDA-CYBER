@@ -1,0 +1,28 @@
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/*.db
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# Umum
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+**/.venv/
+**/venv/
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/dist/
+**/build/
+*.log
+*.sqlite3
+*.db
