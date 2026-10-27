@@ -111,7 +111,7 @@ def test_check_proof_needs_new_marker():
 class _VulnUnion(BaseHTTPRequestHandler):
     """Stub vuln yang mengevaluasi UNION marker (tanpa DB beneran)."""
     def do_GET(self):
-        from urllib.parse import urlparse, parse_qs, unquote
+        from urllib.parse import urlparse, parse_qs
         val = parse_qs(urlparse(self.path).query).get("id", [""])[0]
         if "UNION" in val and PROOF_MARKER in val:
             body = f"<html>row {PROOF_MARKER}1</html>".encode()

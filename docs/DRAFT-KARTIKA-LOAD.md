@@ -67,6 +67,18 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
 
+## Ronde 7: bug-hunt pass sebelum push (2026-10-27)
+
+- pyflakes ke semua file draft: 1 temuan (`unquote` unused di test) -> bersih.
+- Audit pack/unpack semua tuple (split 3-tuple, assess 5-tuple, probe 6-tuple,
+  proof/aggregate 2-tuple): konsisten, tidak ada sisa mismatch seperti bug
+  ronde 6.
+- `test_integrations_registry.py` (milik repo) diupdate: expected set 12 -> 15
+  + assert implemented/configured 3 adapter Kartika. Tanpa ini suite kawan
+  merah duluan. Diverifikasi via simulasi registry (15 tool, flag konsisten)
+  karena TestClient butuh fastapi yang tidak ada di mesin draft.
+Test: 25/25 + simulasi registry OK. Commit `draft: ...bug-hunt...`.
+
 ## Ronde 6: senjata ringan -- constant-proof UNION (2026-10-27)
 
 `prove=true` + verdict SINYAL_KUAT = adapter mencoba UNION SELECT atas
