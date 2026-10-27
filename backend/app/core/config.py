@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     GITHUB_MAX_FILE_BYTES: int = 200_000
     GITHUB_API_TIMEOUT_SECONDS: float = 10.0
 
+    # --- Kartika Load & Resilience (DRAFT) ---
+    KARTIKA_LOAD_ENABLED: bool = True
+    KARTIKA_LOAD_MAX_DURATION: int = 60
+    KARTIKA_LOAD_MAX_THREADS: int = 16
+    KARTIKA_LOAD_MAX_REQUESTS: int = 1000
+    KARTIKA_LOAD_MAX_RPS: int = 500
+
     @property
     def github_allowed_repos_list(self) -> list[str]:
         return [r.strip() for r in self.GITHUB_EXPOSURE_ALLOWED_REPOS.split(",") if r.strip()]

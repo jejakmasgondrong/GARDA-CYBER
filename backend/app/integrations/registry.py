@@ -12,11 +12,13 @@ from app.integrations.adapters.greenbone_adapter import GreenboneAdapter
 from app.integrations.adapters.osint_adapter import OsintAdapter
 from app.integrations.adapters.github_exposure_adapter import GithubExposureAdapter
 from app.integrations.adapters.ip_reputation_adapter import IpReputationAdapter
+from app.integrations.adapters.kartika_load_adapter import KartikaLoadAdapter
 
 _ADAPTERS: list[BaseIntegrationAdapter] = [
     NmapAdapter(),
     NucleiAdapter(),
     AmassAdapter(),
+    KartikaLoadAdapter(),
     ZapAdapter(),
     WazuhAdapter(),
     SuricataAdapter(),
