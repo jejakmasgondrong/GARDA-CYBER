@@ -13,12 +13,16 @@ from app.integrations.adapters.osint_adapter import OsintAdapter
 from app.integrations.adapters.github_exposure_adapter import GithubExposureAdapter
 from app.integrations.adapters.ip_reputation_adapter import IpReputationAdapter
 from app.integrations.adapters.kartika_load_adapter import KartikaLoadAdapter
+from app.integrations.adapters.kartika_sqli_probe_adapter import KartikaSqliProbeAdapter
+from app.integrations.adapters.kartika_wa_phish_adapter import KartikaWaPhishAdapter
 
 _ADAPTERS: list[BaseIntegrationAdapter] = [
     NmapAdapter(),
     NucleiAdapter(),
     AmassAdapter(),
     KartikaLoadAdapter(),
+    KartikaSqliProbeAdapter(),
+    KartikaWaPhishAdapter(),
     ZapAdapter(),
     WazuhAdapter(),
     SuricataAdapter(),

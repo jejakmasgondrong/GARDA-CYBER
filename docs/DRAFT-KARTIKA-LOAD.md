@@ -55,6 +55,18 @@ multicast, reserved). Private/loopback DIIZINKAN (lab sendiri umumnya privat)
 - Auto-create Finding dari hasil run (butuh keputusan mapping severity).
 - Entri frontend `RED_TEAM_TOOLS` + env di `.env.example` + merge ke README.
 
+## Ronde 2 (draft lanjut): kartika_sqli_probe + kartika_wa_phish
+
+| Adapter | Cara pakai | Batas |
+|---|---|---|
+| `kartika_sqli_probe` | `POST /jobs` `{tool_id, asset_id, parameters: {path: "/", param: "id"}}` -- 3 request GET jinak (baseline + 2 quote), baca pantulan error DB | Tanpa ekstraksi data/UNION/stacked/auth-bypass; verdict SINYAL_KUAT / PERLU_TINJAU / TANPA_SINYAL, selalu butuh tinjauan manual |
+| `kartika_wa_phish` | `POST /jobs` `{tool_id, asset_id: "<label kasus>", parameters: {message: "<teks tempelan 10..4000 char>"}}` -- skor offline, tanpa network | TANPA API/scraping WhatsApp (ToS + privasi); 7 aturan transparan, ambang RENDAH 0-2 / WASPADA 3-5 / TINGGI 6+, bobot heuristik awal belum dikalibrasi |
+
+Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
+(echo lokal, signature MySQL, anti-false-positive baseline, status-delta,
+spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
+Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
+
 ## Verifikasi
 
 - `python -m py_compile` semua file berubah: OK.

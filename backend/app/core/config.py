@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     KARTIKA_LOAD_MAX_THREADS: int = 16
     KARTIKA_LOAD_MAX_REQUESTS: int = 1000
     KARTIKA_LOAD_MAX_RPS: int = 500
+    KARTIKA_SQLI_PROBE_ENABLED: bool = True
+    KARTIKA_WA_PHISH_ENABLED: bool = True
 
     @property
     def github_allowed_repos_list(self) -> list[str]:
