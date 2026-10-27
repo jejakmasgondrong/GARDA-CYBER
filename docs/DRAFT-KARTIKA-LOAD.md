@@ -67,6 +67,18 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
 
+## Ronde 6: senjata ringan -- constant-proof UNION (2026-10-27)
+
+`prove=true` + verdict SINYAL_KUAT = adapter mencoba UNION SELECT atas
+marker KONSTANTA hardcoded (`KartikaProof`, 1..3 kolom). Marker terpantul
+-> `TERBUKTI` skor 100 + severity HIGH. Tanpa nama tabel/kolom, tanpa
+enumerasi, tanpa baca baris data; user tidak bisa selipkan SQL sendiri;
+tanpa kedua pagar proof tidak pernah dikirim. Live-test: TERBUKTI via
+UNION 1 kolom; pagar prove=false -> tetap SINYAL_KUAT + "proof dilewati".
+Test: 25/25 (9 load + 16 probe/WA, termasuk template-SQL-murni dan stub
+UNION). Bug unpack 6-tuple ketahuan dari live-test, bukan unit test.
+Commit `draft: ...constant proof...`.
+
 ## Ronde 5: SQLi v2 -- skor + DBMS + multi-param (2026-10-27)
 
 Naik dari 3 ke 5 probe per parameter (tambah boolean TRUE/FALSE

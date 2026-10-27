@@ -13,12 +13,16 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.integrations.adapters.kartika_sqli_probe_adapter import (  # noqa: E402
+    PROOF_MARKER,
     SEVERITY_OF,
     aggregate,
     assess,
+    build_union_value,
+    check_proof,
     dbms_of,
     fetch_probe,
     find_db_signatures,
+    try_proof,
     waf_hit,
 )
 from app.integrations.adapters.kartika_wa_phish_adapter import (  # noqa: E402
@@ -87,6 +91,73 @@ def test_waf_hit_only_on_block_status():
 def test_aggregate_picks_worst_param():
     assert aggregate([("a", "TANPA_SINYAL"), ("b", "SINYAL_KUAT")]) == ("b", "SINYAL_KUAT")
     assert aggregate([("a", "GAGAL_JALAN"), ("b", "TANPA_SINYAL")]) == ("b", "TANPA_SINYAL")
+    assert aggregate([("a", "SINYAL_KUAT"), ("b", "TERBUKTI")]) == ("b", "TERBUKTI")
+
+
+def test_build_union_value_hardcoded_marker_only():
+    val = build_union_value(2)
+    assert PROOF_MARKER in val and "UNION SELECT" in val
+    assert "users" not in val.lower() and "information_schema" not in val.lower()
+    # Tidak ada input user di template SQL -- hanya marker + hitungan kolom.
+    assert val == f"KartikaBaseline1' UNION SELECT '{PROOF_MARKER}1','{PROOF_MARKER}2'-- "
+
+
+def test_check_proof_needs_new_marker():
+    assert check_proof("<html>data</html>", f"<html>{PROOF_MARKER}1</html>")
+    assert not check_proof(f"<html>{PROOF_MARKER}1</html>", f"<html>{PROOF_MARKER}1</html>")
+    assert not check_proof("<html>data</html>", "<html>data</html>")
+
+
+class _VulnUnion(BaseHTTPRequestHandler):
+    """Stub vuln yang mengevaluasi UNION marker (tanpa DB beneran)."""
+    def do_GET(self):
+        from urllib.parse import urlparse, parse_qs, unquote
+        val = parse_qs(urlparse(self.path).query).get("id", [""])[0]
+        if "UNION" in val and PROOF_MARKER in val:
+            body = f"<html>row {PROOF_MARKER}1</html>".encode()
+            self.send_response(200)
+        elif "'" in val or '"' in val:
+            body = b"you have an error in your sql syntax"
+            self.send_response(500)
+        else:
+            body = b"<html>data user</html>"
+            self.send_response(200)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+def test_try_proof_against_union_stub():
+    server = HTTPServer(("127.0.0.1", 0), _VulnUnion)
+    port = server.server_address[1]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        def build(value):
+            from urllib.parse import urlencode
+            return f"http://127.0.0.1:{port}/u?{urlencode({'id': value})}"
+        proven, columns = try_proof(build, "<html>data user</html>")
+    finally:
+        server.shutdown()
+    assert (proven, columns) == (True, 1)
+
+
+def test_try_proof_fails_cleanly_on_echo():
+    server = HTTPServer(("127.0.0.1", 0), _Echo)
+    port = server.server_address[1]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        def build(value):
+            from urllib.parse import urlencode
+            return f"http://127.0.0.1:{port}/u?{urlencode({'id': value})}"
+        proven, columns = try_proof(build, "<html>echo</html>")
+    finally:
+        server.shutdown()
+    assert (proven, columns) == (False, None)
 
 
 class _Echo(BaseHTTPRequestHandler):

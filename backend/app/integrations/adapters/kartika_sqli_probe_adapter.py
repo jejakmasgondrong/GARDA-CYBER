@@ -1,9 +1,15 @@
 """Kartika SQLi probe -- uji pantulan error input (DRAFT, belum untuk PR).
 
 Filosofi sama seperti probe simulator offensive-lab v8: mengirim marker jinak
-ke aset SENDIRI yang terdaftar, lalu membaca RESPONSENYA saja. Tidak ada
-ekstraksi data (tanpa UNION/SELECT), tanpa stacked query, tanpa auth bypass,
-tanpa time-delay attack. Hasilnya selalu "butuh tinjauan manual", bukan vonis.
+ke aset SENDIRI yang terdaftar, lalu membaca RESPONSENYA saja.
+
+Senjata ringan (opsional, berpagar): bila ``prove=true`` DAN verdict per
+parameter sudah SINYAL_KUAT, adapter mencoba SATU proof eksekusi -- UNION
+SELECT atas marker KONSTANTA hardcoded (``KartikaProof``, 1..3 kolom), tanpa
+nama tabel/kolom, tanpa enumerasi, tanpa baca satu baris data. Marker yang
+terpantul = eksekusi SQL TERBUKTI. User tidak bisa menyelipkan SQL sendiri;
+tanpa kedua pagar itu proof tidak pernah dikirim. Tetap hanya untuk aset
+terdaftar-ACTIVE milik sendiri dengan jejak audit JobManager.
 
 Cara kerja (5 request per parameter, GET saja):
 1. baseline : ?<param>=KartikaBaseline1
@@ -54,6 +60,13 @@ MAX_BODY = 200_000
 BOOL_TRUE_SUFFIX = " AND 1=1"
 BOOL_FALSE_SUFFIX = " AND 1=2"
 
+# -- Senjata ringan (proof eksekusi, BUKAN dump) -----------------------------
+# Marker KONSTANTA hardcoded: user tidak bisa menyelipkan SQL sendiri.
+# Proof hanya mencoba UNION SELECT atas string tetap ini (1..3 kolom),
+# tanpa nama tabel/kolom, tanpa enumerasi skema, tanpa baca satu baris pun.
+PROOF_MARKER = "KartikaProof"
+PROOF_MAX_COLUMNS = 3
+
 # signature -> label DBMS (untuk fingerprint, bukan eksploitasi).
 DBMS_OF = {
     "you have an error in your sql syntax": "MySQL/MariaDB",
@@ -83,6 +96,7 @@ W_STATUS_DELTA = 20
 W_LENGTH_DELTA = 10
 
 SEVERITY_OF = {
+    "TERBUKTI": "HIGH",
     "SINYAL_KUAT": "HIGH",
     "PERLU_TINJAU": "MEDIUM",
     "TANPA_SINYAL": "INFO",
@@ -220,9 +234,35 @@ def assess(probes: dict) -> tuple[str, int, list[str], list[str], list[str]]:
 
 def aggregate(results: list[tuple[str, str]]) -> tuple[str, str]:
     """Pilih verdict terburuk dari banyak parameter. results: [(param, label)]."""
-    rank = {"SINYAL_KUAT": 3, "PERLU_TINJAU": 2, "TANPA_SINYAL": 1, "GAGAL_JALAN": 0}
+    rank = {"TERBUKTI": 4, "SINYAL_KUAT": 3, "PERLU_TINJAU": 2,
+            "TANPA_SINYAL": 1, "GAGAL_JALAN": 0}
     worst = max(results, key=lambda item: rank.get(item[1], 0))
     return worst
+
+
+def build_union_value(columns: int) -> str:
+    """Bangun SATU nilai proof: UNION SELECT atas marker konstanta saja.
+
+    Tidak ada input user di dalam string SQL -- kolom hanya menentukan berapa
+    kali marker diulang. Daftar kolom/tabel tidak pernah disentuh.
+    """
+    consts = ",".join(f"'{PROOF_MARKER}{i}'" for i in range(1, columns + 1))
+    return f"{BASELINE}' UNION SELECT {consts}-- "
+
+
+def check_proof(baseline_body: str, proof_body: str) -> bool:
+    """True bila marker muncul di respons proof tapi TIDAK di baseline."""
+    return PROOF_MARKER in (proof_body or "") and PROOF_MARKER not in (baseline_body or "")
+
+
+def try_proof(build, baseline_body: str) -> tuple[bool, int | None]:
+    """Coba UNION 1..N kolom. Return (terbukti, jumlah_kolom|None)."""
+    for columns in range(1, PROOF_MAX_COLUMNS + 1):
+        _, body = fetch_probe(build(build_union_value(columns)))
+        time.sleep(0.3)
+        if check_proof(baseline_body, body):
+            return True, columns
+    return False, None
 
 
 class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
@@ -280,7 +320,9 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
             query = urllib.parse.urlencode({param: value})
             return f"{scheme}://{netloc(host, port)}{path}?{query}"
 
-        def probe_param(param: str) -> tuple[str, int, list[str], list[str], list[str]]:
+        prove = str(params.get("prove", "") or "").lower() in ("1", "true", "yes")
+
+        def probe_param(param: str) -> tuple:
             fits = {
                 "baseline": fetch_probe(build(param, BASELINE)),
                 "quote1": None, "quote2": None, "bool_true": None, "bool_false": None,
@@ -294,7 +336,23 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
             time.sleep(0.3)
             fits["bool_false"] = fetch_probe(build(param, BASELINE + BOOL_FALSE_SUFFIX))
             label, score, signals, findings, advice = assess(fits)  # type: ignore[arg-type]
-            return label, score, signals, findings, advice
+            proof_note = "proof dilewati (butuh prove=true + verdict SINYAL_KUAT)"
+            # PAGAR proof: hanya bila user eksplisit minta DAN verdict sudah KUAT.
+            if prove and label == "SINYAL_KUAT":
+                base_body = fits["baseline"][1] or ""
+                proven, columns = try_proof(lambda v: build(param, v), base_body)
+                if proven:
+                    label, score = "TERBUKTI", 100
+                    signals = signals + [f"+PROOF(UNION {columns} kolom, marker konstanta)"]
+                    findings = findings + [
+                        f"EKSEKUSI SQL TERBUKTI: marker '{PROOF_MARKER}' dievaluasi DB "
+                        f"(UNION {columns} kolom) -- tanpa baca tabel apa pun."]
+                    advice = advice + ["Anggap endpoint ini COMPROMISED sampai query diperbaiki; "
+                                       "putar kredensial DB bila endpoint menghadap publik."]
+                    proof_note = f"TERBUKTI via UNION {columns} kolom"
+                else:
+                    proof_note = "proof dicoba, marker tidak terpantul (skor tetap)"
+            return label, score, signals, findings, advice, proof_note
 
         try:
             per_param = [(param, *probe_param(param)) for param in wanted]
@@ -302,13 +360,15 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
             return ExecutionResult(False, f"Probe gagal jalan: {exc.__class__.__name__}")
 
         worst_param, _ = aggregate([(param, item[0]) for param, *item in per_param])
-        w_label, w_score, w_signals, w_findings, w_advice = next(
+        w_label, w_score, w_signals, w_findings, w_advice, _ = next(
             item for param, *item in per_param if param == worst_param)
         detail = " | ".join(f"{param}={item[0]}({item[1]})" for param, *item in per_param)
+        proof_line = " | ".join(f"{param}: {item[5]}" for param, *item in per_param)
         lines = [
             f"kartika_sqli_probe: {scheme}://{netloc(host, port)}{path} "
             f"-> {w_label} skor {w_score}/100 [{detail}].",
             "Sinyal: " + (" + ".join(w_signals) if w_signals else "-"),
+            "Proof: " + proof_line,
             "Temuan: " + " | ".join(w_findings),
             "Rekomendasi: " + " | ".join(w_advice),
             f"Severity usulan: {SEVERITY_OF.get(w_label, 'INFO')} (siap dipetakan ke Finding GARDA).",
