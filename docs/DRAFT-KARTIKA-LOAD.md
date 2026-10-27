@@ -1,5 +1,9 @@
 # DRAFT: Kartika Load adapter untuk GARDA-CYBER (belum untuk PR)
 
+Versi draft: **kartika-draft-v0.1.0** (tag di fork, bukan rilis upstream).
+Isi: 3 adapter (`kartika_load`, `kartika_sqli_probe`, `kartika_wa_phish`),
+registry 12 -> 15 tool, 5 env baru, 25/25 test hijau + simulasi registry OK.
+
 Status: draft di branch `draft/kartika-load`, fork `jejakmasgondrong/GARDA-CYBER`.
 Repo offensive-lab (Kartika) TIDAK diubah sama sekali.
 
@@ -66,6 +70,13 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 (echo lokal, signature MySQL, anti-false-positive baseline, status-delta,
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
+
+## Ronde 8: versioning draft v0.1.0 (2026-10-27)
+
+Tag `kartika-draft-v0.1.0` di fork (annotated, isi + status test). Skema:
+`kartika-draft-vX.Y.Z` -- namespace jelas draft kita, tidak dikira rilis
+upstream. Naik minor tiap adapter/fitur baru, patch tiap bugfix. Tag rilis
+final (`vX.Y.Z` tanpa prefix) tetap hak owner saat merge PR.
 
 ## Ronde 7: bug-hunt pass sebelum push (2026-10-27)
 
