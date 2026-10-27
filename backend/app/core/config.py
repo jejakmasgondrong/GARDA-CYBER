@@ -60,9 +60,6 @@ class Settings(BaseSettings):
     KARTIKA_LOAD_MAX_RPS: int = 500
     KARTIKA_SQLI_PROBE_ENABLED: bool = True
     KARTIKA_WA_PHISH_ENABLED: bool = True
-    # --- WA Number Lookup (RapidAPI berbayar, opsional, default mati rapi) ---
-    WA_OSINT_ENABLED: bool = True
-    WA_OSINT_RAPIDAPI_KEY: str = ""
 
     @property
     def github_allowed_repos_list(self) -> list[str]:
