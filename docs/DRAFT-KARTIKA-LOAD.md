@@ -67,6 +67,29 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
 
+## Ronde 3: wa_number_lookup (kontrak kinghacker0/WhatsApp-OSINT, bukan kodenya)
+
+Repo `kinghacker0/WhatsApp-OSINT` (MIT, 1.3k stars) dibaca di
+`repos/WhatsApp-OSINT`: CLI 351 baris membungkus RapidAPI berbayar
+(`whatsapp-osint.p.rapidapi.com`, 6 endpoint, header x-rapidapi-key/host,
+validasi digit 8-15). Yang dipakai HANYA kontrak HTTP-nya.
+
+| File baru | Isi |
+|---|---|
+| `backend/app/integrations/providers/wa_number_provider.py` | Provider httpx (pola AbuseIPDB): 4 endpoint diizinkan (`about`, `business`, `devices`, `privacy`); foto `b64` + full dump `dck` SENGAJA ditutup (privasi + blob) |
+| `backend/app/integrations/adapters/wa_lookup_adapter.py` | Adapter `wa_number_lookup`: wajib `case_ref` (tolak tanpa konteks kasus) + `phone` + endpoint allowlist |
+| `backend/tests/test_wa_lookup.py` | 7 test mock (tanpa key/internet): validasi nomor, tanpa-key jujur, endpoint-ditolak, OK + ringkasan, 429, case_ref wajib, flag kontrak |
+
+Env: `WA_OSINT_ENABLED` + `WA_OSINT_RAPIDAPI_KEY` (kosong = modul mati rapi,
+`configured/executable: False`). Key TIDAK PERNAH masuk output/log.
+Ketergantungan jujur: API berbayar pihak ketiga (kuota di RapidAPI),
+sumbernya scraping jadi bisa berubah -- enrichment opsional, bukan core.
+
+Test: `python backend/tests/test_wa_lookup.py` = 7/7 PASS.
+Total draft: 22/22. Bug kecil ketemu: restore `staticmethod` hasil monkeypatch
+harus pakai `Class.__dict__[name]`, bukan akses atribut (jadi function biasa
+-> TypeError saat dipanggil via self). Commit `draft: ...wa lookup...`.
+
 ## Verifikasi
 
 - `python -m py_compile` semua file berubah: OK.
