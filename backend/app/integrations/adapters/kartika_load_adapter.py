@@ -74,8 +74,69 @@ def percentile(values: list[float], q: float) -> float | None:
     return ordered[rank - 1]
 
 
-def split_target(identifier: str) -> tuple[str, str] | None:
-    """Pecah identifier aset jadi (host, path). Return None kalau tak valid."""
+def parse_port(text: str) -> int | None:
+    """Port 1..65535, atau None kalau bukan angka valid."""
+    if not text or not text.isdigit():
+        return None
+    port = int(text)
+    return port if 1 <= port <= 65535 else None
+
+
+def parse_hostport(hostport: str) -> tuple[str | None, int | None]:
+    """Pecah host[:port]. IPv6 wajib bracket ([::1] atau [::1]:8080).
+
+    Return (host, port|None); (None, None) kalau tak valid.
+    """
+    if not hostport:
+        return None, None
+    if hostport.startswith("["):  # IPv6 bracket
+        end = hostport.find("]")
+        if end < 0:
+            return None, None
+        host = hostport[1:end]
+        try:
+            ipaddress.IPv6Address(host)
+        except ValueError:
+            return None, None
+        rest = hostport[end + 1:]
+        if not rest:
+            return host, None
+        if not rest.startswith(":"):
+            return None, None
+        port = parse_port(rest[1:])
+        return (host, port) if port is not None else (None, None)
+    if hostport.count(":") > 1:
+        return None, None  # IPv6 tanpa bracket ditolak (ambigu)
+    if ":" in hostport:
+        host, _, port_s = hostport.partition(":")
+        port = parse_port(port_s)
+        if port is None:
+            return None, None
+    else:
+        host, port = hostport, None
+    if not host or ".." in host:
+        return None, None
+    try:
+        ipaddress.ip_address(host)  # literal IP diizinkan (target lab sendiri)
+    except ValueError:
+        if not _HOST_RE.fullmatch(host):
+            return None, None
+    return host, port
+
+
+def netloc(host: str, port: int | None) -> str:
+    """Bentuk host:port untuk URL (IPv6 dibracket ulang)."""
+    bare = f"[{host}]" if ":" in host and not host.startswith("[") else host
+    return f"{bare}:{port}" if port is not None else bare
+
+
+def split_target(identifier: str) -> tuple[str, int | None, str] | None:
+    """Pecah identifier aset jadi (host, port|None, path). None kalau tak valid.
+
+    Menerima: domain, IP literal, host:port, URL http(s) penuh.
+    Skema selain http/https ditolak; validasi guard jaringan tetap di
+    resolve_guard (dipanggil terpisah oleh adapter).
+    """
     raw = (identifier or "").strip()
     if not raw or len(raw) > 253 or any(ch.isspace() for ch in raw):
         return None
@@ -85,16 +146,11 @@ def split_target(identifier: str) -> tuple[str, str] | None:
             return None
     else:
         rest = raw
-    host, _, path = rest.partition("/")
-    if not host or not _HOST_RE.fullmatch(host) or ".." in host:
+    hostport, _, path = rest.partition("/")
+    host, port = parse_hostport(hostport)
+    if host is None:
         return None
-    # Tolak input yang sebetulnya IP mentah menyamar (konsisten dgn osint service).
-    try:
-        ipaddress.ip_address(host)
-        return None
-    except ValueError:
-        pass
-    return host, ("/" + path) if path else "/"
+    return host, port, ("/" + path) if path else "/"
 
 
 def resolve_guard(host: str, timeout: float = 4.0) -> tuple[list[str], str | None]:
@@ -279,17 +335,8 @@ class KartikaLoadAdapter(BaseIntegrationAdapter):
 
         split = split_target(asset_identifier)
         if split is None:
-            # Identifier boleh juga berupa URL penuh milik aset (http(s)://...).
-            maybe_url = (asset_identifier or "").strip()
-            if maybe_url.startswith(("http://", "https://")):
-                host_part = maybe_url.split("://", 1)[1].partition("/")[0]
-                split = split_target(host_part)
-                if split is not None:
-                    path = "/" + maybe_url.split("://", 1)[1].partition("/")[2]
-                    split = (split[0], path or "/")
-            if split is None:
-                return ExecutionResult(False, f"Identifier '{asset_identifier}' bukan target valid.")
-        host, path = split
+            return ExecutionResult(False, f"Identifier '{asset_identifier}' bukan target valid.")
+        host, port, path = split
         extra_path = str(params.get("path", "") or "").strip()
         if extra_path:
             if not extra_path.startswith("/") or ".." in extra_path or any(ch.isspace() for ch in extra_path):
@@ -306,7 +353,7 @@ class KartikaLoadAdapter(BaseIntegrationAdapter):
         rps = clamp_int(params.get("rps"), 0, settings.KARTIKA_LOAD_MAX_RPS, 0)
 
         scheme = "https" if asset_identifier.strip().startswith("https://") else "http"
-        url = f"{scheme}://{host}{path}"
+        url = f"{scheme}://{netloc(host, port)}{path}"
         try:
             result = run_load(url, scenario, duration, threads, max_requests, rps)
         except Exception as exc:  # kontrak: tidak boleh bocor jadi 500

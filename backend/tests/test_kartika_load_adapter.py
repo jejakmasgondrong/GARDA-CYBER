@@ -16,6 +16,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from app.integrations.adapters.kartika_load_adapter import (  # noqa: E402
     analyze,
     clamp_int,
+    netloc,
+    parse_hostport,
     percentile,
     resolve_guard,
     run_load,
@@ -38,12 +40,29 @@ def test_clamp_rejects_garbage():
     assert clamp_int(0, 1, 60, 10) == 1
 
 
-def test_split_target_rejects_ip_and_scheme():
-    assert split_target("8.8.8.8") is None  # IP mentah bukan target load
+def test_split_target_domain_port_and_ip():
+    assert split_target("example.com") == ("example.com", None, "/")
+    assert split_target("example.com:8080/x") == ("example.com", 8080, "/x")
+    assert split_target("http://127.0.0.1:8890/uji") == ("127.0.0.1", 8890, "/uji")
+    assert split_target("127.0.0.1") == ("127.0.0.1", None, "/")
     assert split_target("ftp://example.com/") is None
     assert split_target("exa mple.com") is None
-    host, path = split_target("example.com")
-    assert (host, path) == ("example.com", "/")
+    assert split_target("example.com:99999/") is None  # port di luar range
+    assert split_target("example.com:http/") is None  # port bukan angka
+    assert split_target("[::1]:8080/x") == ("::1", 8080, "/x")
+    assert split_target("::1") is None  # IPv6 wajib bracket
+
+
+def test_netloc_brackets_ipv6():
+    assert netloc("example.com", 8080) == "example.com:8080"
+    assert netloc("example.com", None) == "example.com"
+    assert netloc("::1", 8080) == "[::1]:8080"
+
+
+def test_parse_hostport_rejects_garbage():
+    assert parse_hostport("") == (None, None)
+    assert parse_hostport("a..b") == (None, None)
+    assert parse_hostport("[::1") == (None, None)
 
 
 def test_resolve_guard_blocks_metadata_ip(monkeypatch=None):

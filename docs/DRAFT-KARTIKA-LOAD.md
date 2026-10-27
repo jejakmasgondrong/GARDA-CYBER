@@ -67,6 +67,22 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
 
+## Ronde 4: split_target terima host:port + IP literal (2026-10-27)
+
+Bug ketemu sendiri: `split_target` menolak `127.0.0.1:8890` (colon gagal
+regex + IP literal ditolak) -- padahal target lab selalu host:port. Fix:
+`parse_hostport` (port 1..65535, IPv6 wajib bracket, IP literal diizinkan)
++ `netloc` (bracket ulang IPv6) di `kartika_load_adapter.py`; kedua adapter
+(`load`, `sqli`) sekarang unpack 3-tuple dan guard tetap via `resolve_guard`
+di bare host. Test load 7 -> 9.
+
+Live-test (echo + stub vuln lokal, tanpa internet):
+- echo sehat -> TANPA_SINYAL (200/200/200)
+- stub muntah error SQL saat quote -> SINYAL_KUAT + signature terbaca
+- port mati -> GAGAL_JALAN jujur (TRANSPORT, tanpa crash)
+- load/burst 8 req vs echo -> angka + RATE_LIMIT_MISSING
+Total draft: 17/17. Commit `draft: ...host:port...`.
+
 ## Ronde 3: wa_number_lookup -- DICABUT (2026-10-27)
 
 Alasan: butuh RapidAPI key BERBAYAR dan tidak ada key yang tersedia --

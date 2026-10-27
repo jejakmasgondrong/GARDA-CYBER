@@ -32,7 +32,11 @@ from app.integrations.adapters.base import (
     ExecutionResult,
     IntegrationInfo,
 )
-from app.integrations.adapters.kartika_load_adapter import resolve_guard
+from app.integrations.adapters.kartika_load_adapter import (
+    netloc,
+    resolve_guard,
+    split_target,
+)
 
 BASELINE = "KartikaBaseline1"
 REQUEST_TIMEOUT = 5.0
@@ -136,14 +140,11 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
         if not settings.KARTIKA_SQLI_PROBE_ENABLED:
             return ExecutionResult(False, "SQLi Probe dinonaktifkan (KARTIKA_SQLI_PROBE_ENABLED=false).")
         raw = (asset_identifier or "").strip()
-        if raw.startswith(("http://", "https://")):
-            scheme, _, rest = raw.partition("://")
-            host = rest.partition("/")[0]
-            base_path = "/" + rest.partition("/")[2]
-        else:
-            scheme, host, base_path = "http", raw.partition("/")[0], "/" + raw.partition("/")[2]
-        if scheme not in ("http", "https"):
-            return ExecutionResult(False, f"Skema '{scheme}' ditolak (hanya http/https).")
+        scheme = "https" if raw.startswith("https://") else "http"
+        split = split_target(asset_identifier)
+        if split is None:
+            return ExecutionResult(False, f"Identifier '{asset_identifier}' bukan target valid.")
+        host, port, base_path = split
 
         params = parameters or {}
         path = str(params.get("path", base_path or "/") or "/").strip() or "/"
@@ -159,7 +160,7 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
 
         def build(value: str) -> str:
             query = urllib.parse.urlencode({param: value})
-            return f"{scheme}://{host}{path}?{query}"
+            return f"{scheme}://{netloc(host, port)}{path}?{query}"
 
         try:
             base = fetch_probe(build(BASELINE))
@@ -172,7 +173,7 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
 
         label, findings, advice = verdict(base, quote1, quote2)
         lines = [
-            f"kartika_sqli_probe: {scheme}://{host}{path}?{param}=... -> {label} "
+            f"kartika_sqli_probe: {scheme}://{netloc(host, port)}{path}?{param}=... -> {label} "
             f"(baseline {base[0]}, quote1 {quote1[0]}, quote2 {quote2[0]}).",
             "Temuan: " + " | ".join(findings),
             "Rekomendasi: " + " | ".join(advice),
