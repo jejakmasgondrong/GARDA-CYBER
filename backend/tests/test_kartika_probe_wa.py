@@ -13,14 +13,24 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.integrations.adapters.kartika_sqli_probe_adapter import (  # noqa: E402
+    SEVERITY_OF,
+    aggregate,
+    assess,
+    dbms_of,
     fetch_probe,
     find_db_signatures,
-    verdict,
+    waf_hit,
 )
 from app.integrations.adapters.kartika_wa_phish_adapter import (  # noqa: E402
     analyze_message,
     band,
 )
+
+
+def _probes(base=(200, "<html>halo</html>"), quote=None, bt=None, bf=None):
+    quote = quote or (200, "<html>halo</html>")
+    return {"baseline": base, "quote1": quote, "quote2": quote,
+            "bool_true": bt or base, "bool_false": bf or base}
 
 
 def test_find_db_signatures_mysql_and_clean():
@@ -29,27 +39,54 @@ def test_find_db_signatures_mysql_and_clean():
     assert find_db_signatures("<html>halo dunia</html>") == []
 
 
-def test_verdict_strong_only_when_new_signature():
-    base = (200, "<html>halo</html>")
+def test_dbms_of_maps_signatures():
+    assert dbms_of(["you have an error in your sql syntax"]) == ["MySQL/MariaDB"]
+    assert dbms_of(["ora-"]) == ["Oracle"]  # signature persis, bukan kode penuh
+    assert dbms_of([]) == []
+
+
+def test_assess_strong_with_score_and_dbms():
     bad = (500, "you have an error in your sql syntax near ''")
-    label, findings, advice = verdict(base, bad, bad)
-    assert label == "SINYAL_KUAT", findings
+    label, score, signals, findings, advice = assess(_probes(quote=bad))
+    assert label == "SINYAL_KUAT" and score >= 50, (label, score)
+    assert any("ERROR_SIG" in s for s in signals)
+    assert SEVERITY_OF[label] == "HIGH"
     assert advice
 
 
-def test_verdict_not_fooled_by_baseline_signature():
+def test_assess_not_fooled_by_baseline_signature():
     # Signature yang SUDAH ada di baseline bukan temuan (hindari false positive).
     base = (200, "debug: pg_query failed (halaman debug internal)")
-    same = (200, "debug: pg_query failed (halaman debug internal)")
-    label, _, _ = verdict(base, same, same)
-    assert label == "TANPA_SINYAL", label
+    label, score, _, _, _ = assess(_probes(base=base, quote=base))
+    assert (label, score) == ("TANPA_SINYAL", 0), (label, score)
 
 
-def test_verdict_unclear_on_status_delta():
+def test_assess_boolean_differential_scores():
+    probes = _probes(bt=(200, "<html>" + "data" * 50 + "</html>"),
+                     bf=(200, "<html>kosong</html>"))
+    label, score, signals, _, _ = assess(probes)
+    assert label == "PERLU_TINJAU" and score == 30, (label, score, signals)
+    assert any("BOOL_DIFF" in s for s in signals)
+
+
+def test_assess_status_delta_only_is_review():
+    probes = _probes(quote=(500, "<html>" + "x" * 200 + "</html>"),
+                     bt=(200, "<html>" + "x" * 200 + "</html>"),
+                     bf=(200, "<html>" + "x" * 200 + "</html>"))
     base = (200, "<html>" + "x" * 200 + "</html>")
-    changed = (500, "<html>oops</html>")
-    label, _, _ = verdict(base, changed, changed)
-    assert label == "PERLU_TINJAU", label
+    probes["baseline"] = base
+    label, score, _, _, _ = assess(probes)
+    assert label == "PERLU_TINJAU", (label, score)
+
+
+def test_waf_hit_only_on_block_status():
+    assert waf_hit(403, "blocked by ModSecurity")
+    assert not waf_hit(200, "blocked by ModSecurity")
+
+
+def test_aggregate_picks_worst_param():
+    assert aggregate([("a", "TANPA_SINYAL"), ("b", "SINYAL_KUAT")]) == ("b", "SINYAL_KUAT")
+    assert aggregate([("a", "GAGAL_JALAN"), ("b", "TANPA_SINYAL")]) == ("b", "TANPA_SINYAL")
 
 
 class _Echo(BaseHTTPRequestHandler):
@@ -70,13 +107,12 @@ def test_fetch_probe_no_signal_on_echo():
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        base = fetch_probe(f"http://127.0.0.1:{port}/uji?id=KartikaBaseline1")
-        quote = fetch_probe(f"http://127.0.0.1:{port}/uji?id=KartikaBaseline1%27")
+        probes = {name: fetch_probe(f"http://127.0.0.1:{port}/uji?id=v")
+                  for name in ("baseline", "quote1", "quote2", "bool_true", "bool_false")}
     finally:
         server.shutdown()
-    assert base[0] == 200 and quote[0] == 200
-    label, _, _ = verdict(base, quote, quote)
-    assert label == "TANPA_SINYAL", label
+    label, score, signals, _, _ = assess(probes)
+    assert (label, score, signals) == ("TANPA_SINYAL", 0, []), (label, score, signals)
 
 
 def test_wa_phish_spam_scores_high():

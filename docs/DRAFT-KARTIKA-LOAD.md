@@ -67,6 +67,21 @@ Test ronde 2: `python backend/tests/test_kartika_probe_wa.py` = 8/8 PASS
 spam ID -> TINGGI, benign -> RENDAH, satu-hit-per-aturan).
 Total draft: 15/15 (7 load + 8 probe/WA). Commit `draft: ...probe + WA...`.
 
+## Ronde 5: SQLi v2 -- skor + DBMS + multi-param (2026-10-27)
+
+Naik dari 3 ke 5 probe per parameter (tambah boolean TRUE/FALSE
+`AND 1=1` vs `AND 1=2` -- teknik differential standar, tetap tanpa
+ekstraksi data). Sinyal berbobot terbuka: ERROR_SIG +50, BOOL_DIFF +30,
+STATUS_DELTA +20, LENGTH_DELTA +10; ambang >=50 KUAT, >=20 TINJAU.
+Bonus: fingerprint DBMS dari signature, deteksi WAF (403/406 + marker),
+multi-param (maks 5, diambil terburuk), severity usulan HIGH/MEDIUM/INFO
+siap dipetakan ke Finding. Bobot STATUS 10 -> 20 karena 500 gara-gara
+quote memang pantas TINJAU (ketahuan dari test yang gagal jujur).
+
+Live-test vs stub vuln: `SINYAL_KUAT skor 100/100 [id + q]` --
+MySQL/MariaDB terlabel, BOOL_DIFF terbaca (173B vs 20B), severity HIGH.
+Test: 21/21 (9 load + 12 probe/WA). Commit `draft: ...sqli v2...`.
+
 ## Ronde 4: split_target terima host:port + IP literal (2026-10-27)
 
 Bug ketemu sendiri: `split_target` menolak `127.0.0.1:8890` (colon gagal

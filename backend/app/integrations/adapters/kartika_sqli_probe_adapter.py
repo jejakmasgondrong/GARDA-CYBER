@@ -5,10 +5,19 @@ ke aset SENDIRI yang terdaftar, lalu membaca RESPONSENYA saja. Tidak ada
 ekstraksi data (tanpa UNION/SELECT), tanpa stacked query, tanpa auth bypass,
 tanpa time-delay attack. Hasilnya selalu "butuh tinjauan manual", bukan vonis.
 
-Cara kerja (tetap 3 request, GET saja):
+Cara kerja (5 request per parameter, GET saja):
 1. baseline : ?<param>=KartikaBaseline1
 2. quote1   : ?<param>=KartikaBaseline1'
 3. quote2   : ?<param>=KartikaBaseline1"
+4. bool_true : ?<param>=KartikaBaseline1 AND 1=1
+5. bool_false: ?<param>=KartikaBaseline1 AND 1=2
+
+Sinyal dinilai terbuka (bobot tertulis di laporan, maks 100):
+ERROR_SIG +50 (signature error DB baru + label DBMS), BOOL_DIFF +30
+(TRUE vs FALSE beda), STATUS_DELTA +20, LENGTH_DELTA +10.
+Ambang: >=50 SINYAL_KUAT, >=20 PERLU_TINJAU, sisanya TANPA_SINYAL.
+Tiap verdict membawa severity usulan (HIGH/MEDIUM/INFO) siap dipetakan
+ke Finding GARDA. Maks 5 parameter per run, diambil yang terburuk.
 
 Verdict:
 - SINYAL_KUAT : signature error DB muncul di probe quote tapi TIDAK di baseline.
@@ -41,6 +50,44 @@ from app.integrations.adapters.kartika_load_adapter import (
 BASELINE = "KartikaBaseline1"
 REQUEST_TIMEOUT = 5.0
 MAX_BODY = 200_000
+
+BOOL_TRUE_SUFFIX = " AND 1=1"
+BOOL_FALSE_SUFFIX = " AND 1=2"
+
+# signature -> label DBMS (untuk fingerprint, bukan eksploitasi).
+DBMS_OF = {
+    "you have an error in your sql syntax": "MySQL/MariaDB",
+    "mysql_fetch": "MySQL/MariaDB",
+    "mysqli": "MySQL/MariaDB",
+    "pg_query": "PostgreSQL",
+    "unterminated quoted string": "PostgreSQL",
+    "postgresql": "PostgreSQL",
+    "odbc": "MSSQL/ODBC",
+    "microsoft ole db": "MSSQL",
+    "sql server": "MSSQL",
+    "sqlite3": "SQLite",
+    "ora-": "Oracle",
+    "pl/sql": "Oracle",
+}
+
+# Marker proteksi (hanya dihitung bila respons quote 403/406 -- kabar baik).
+WAF_MARKERS = (
+    "modsecurity", "mod_security", "cloudflare", "sucuri", "akamai",
+    "blocked by", "web application firewall", "request blocked",
+)
+
+# Bobot sinyal (heuristik terbuka, tertulis di laporan). Maks 100.
+W_ERROR_SIG = 50
+W_BOOL_DIFF = 30
+W_STATUS_DELTA = 20
+W_LENGTH_DELTA = 10
+
+SEVERITY_OF = {
+    "SINYAL_KUAT": "HIGH",
+    "PERLU_TINJAU": "MEDIUM",
+    "TANPA_SINYAL": "INFO",
+    "GAGAL_JALAN": "INFO",
+}
 
 # Signature error DB umum (lowercase, substring match). Daftar ini untuk
 # DETEKSI pantulan, bukan untuk eksploitasi -- tidak ada payload di sini.
@@ -84,47 +131,112 @@ def fetch_probe(url: str) -> tuple[int | None, str]:
         return None, f"TRANSPORT:{exc.__class__.__name__}"
 
 
-def verdict(baseline: tuple, quote1: tuple, quote2: tuple) -> tuple[str, list[str], list[str]]:
-    """Tentukan verdict dari 3 hasil (status, body)."""
-    (b_code, b_body), (q1_code, q1_body), (q2_code, q2_body) = baseline, quote1, quote2
+def length_delta(a: str, b: str) -> bool:
+    """True bila panjang respons berubah signifikan (relatif, bukan byte mentah)."""
+    return abs(len(a) - len(b)) > max(50, len(b) // 4)
+
+
+def dbms_of(signatures: list[str]) -> list[str]:
+    """Petakan signature ke label DBMS (unik, urut)."""
+    return sorted({DBMS_OF[s] for s in signatures if s in DBMS_OF})
+
+
+def waf_hit(code: int | None, body: str) -> bool:
+    """True bila proteksi terdeteksi (blokir 403/406 + marker dikenal)."""
+    if code not in (403, 406):
+        return False
+    lowered = (body or "").lower()
+    return any(marker in lowered for marker in WAF_MARKERS)
+
+
+def assess(probes: dict) -> tuple[str, int, list[str], list[str], list[str]]:
+    """Nilai 5 probe per parameter. Return (label, skor, sinyal, temuan, saran).
+
+    probes: {"baseline": (code, body), "quote1": ..., "quote2": ...,
+             "bool_true": ..., "bool_false": ...}. Skor 0-100 dari bobot
+    terbuka; ambang: >=50 SINYAL_KUAT, >=20 PERLU_TINJAU, sisanya TANPA_SINYAL.
+    """
+    base = probes["baseline"]
+    b_code, b_body = base
     if b_code is None:
-        return ("GAGAL_JALAN",
+        return ("GAGAL_JALAN", 0, [],
                 [f"Baseline tidak terjangkau ({b_body}). Periksa aset dulu."],
                 ["Pastikan aset aktif dan path benar sebelum menilai."])
-    base_sig = find_db_signatures(b_body)
-    sig1 = [s for s in find_db_signatures(q1_body) if s not in base_sig]
-    sig2 = [s for s in find_db_signatures(q2_body) if s not in base_sig]
-    new_sig = sorted(set(sig1) | set(sig2))
+    base_sig = set(find_db_signatures(b_body))
+    quotes = [probes["quote1"], probes["quote2"]]
+    new_sig = sorted({s for _, body in quotes for s in find_db_signatures(body)} - base_sig)
+
+    score = 0
+    signals: list[str] = []
+    findings: list[str] = []
+    advice: list[str] = []
+
     if new_sig:
-        return ("SINYAL_KUAT",
-                [f"Signature error DB muncul di probe quote: {', '.join(new_sig)}."],
-                ["Tinjau query di endpoint ini; pakai parameterized query/ORM binding;",
-                 "jangan tampilkan error DB mentah ke klien (custom error page)."])
-    deltas = []
-    if q1_code != b_code or q2_code != b_code:
-        deltas.append(f"status berubah (baseline {b_code} vs quote {q1_code}/{q2_code})")
-    if abs(len(q1_body) - len(b_body)) > max(50, len(b_body) // 4):
-        deltas.append("panjang respons berubah signifikan pada probe quote")
-    if deltas:
-        return ("PERLU_TINJAU",
-                ["Perilaku berubah tanpa signature jelas: " + "; ".join(deltas) + "."],
-                ["Uji manual dengan akun uji di lab; audit query dan input validation."])
-    return ("TANPA_SINYAL",
-            ["Baseline dan kedua probe quote merespons identik, tanpa signature error DB."],
-            ["Tetap lakukan code review query; probe 3-request bukan bukti aman penuh."])
+        score += W_ERROR_SIG
+        labels = dbms_of(new_sig) or ["tak dikenal"]
+        signals.append(f"+{W_ERROR_SIG} ERROR_SIG[{', '.join(labels)}]")
+        findings.append(f"Signature error DB muncul di probe quote: {', '.join(new_sig)}.")
+        advice.append("Tinjau query di endpoint ini; pakai parameterized query/ORM binding; "
+                      "jangan tampilkan error DB mentah ke klien (custom error page).")
+
+    t_code, t_body = probes["bool_true"]
+    f_code, f_body = probes["bool_false"]
+    if t_code is not None and f_code is not None and (
+            t_code != f_code or length_delta(t_body, f_body)):
+        score += W_BOOL_DIFF
+        signals.append(f"+{W_BOOL_DIFF} BOOL_DIFF(true {t_code}/{len(t_body)}B "
+                       f"vs false {f_code}/{len(f_body)}B)")
+        findings.append("Respons TRUE vs FALSE berbeda -- logika query terpengaruh input.")
+        advice.append("Audit klausa WHERE/parameter; uji manual dengan akun uji di lab.")
+
+    if any(code != b_code for code, _ in quotes):
+        score += W_STATUS_DELTA
+        codes = "/".join(str(code) for code, _ in [base] + quotes)
+        signals.append(f"+{W_STATUS_DELTA} STATUS_DELTA({codes})")
+    if any(length_delta(body, b_body) for _, body in quotes):
+        score += W_LENGTH_DELTA
+        signals.append(f"+{W_LENGTH_DELTA} LENGTH_DELTA")
+
+    if waf_hit(quotes[0][0], quotes[0][1]) or waf_hit(quotes[1][0], quotes[1][1]):
+        findings.append("WAF_TERDETEKSI: probe quote diblokir 403/406 oleh proteksi "
+                        "-- kabar baik, pertahankan ruleset-nya.")
+        advice.append("Pastikan proteksi juga menutup jalur POST dan parameter lain.")
+
+    score = min(score, 100)
+    if score >= 50:
+        label = "SINYAL_KUAT"
+    elif score >= 20:
+        label = "PERLU_TINJAU"
+        if not findings:
+            findings.append(f"Perilaku berubah tanpa signature jelas (skor {score}).")
+            advice.append("Uji manual dengan akun uji di lab; audit query dan input validation.")
+    else:
+        label = "TANPA_SINYAL"
+        findings.append("Baseline, quote, dan boolean probe merespons konsisten, "
+                        "tanpa signature error DB.")
+        advice.append("Tetap lakukan code review query; probe 5-request bukan bukti aman penuh.")
+    return label, score, signals, findings, advice
+
+
+def aggregate(results: list[tuple[str, str]]) -> tuple[str, str]:
+    """Pilih verdict terburuk dari banyak parameter. results: [(param, label)]."""
+    rank = {"SINYAL_KUAT": 3, "PERLU_TINJAU": 2, "TANPA_SINYAL": 1, "GAGAL_JALAN": 0}
+    worst = max(results, key=lambda item: rank.get(item[1], 0))
+    return worst
 
 
 class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
-    """Probe pantulan error SQLi untuk aset terdaftar dan aktif (GET, 3 request)."""
+    """Probe SQLi 5-request per parameter untuk aset terdaftar dan aktif."""
 
     info = IntegrationInfo(
         tool_id="kartika_sqli_probe",
         display_name="Kartika SQLi Probe",
-        description="Kirim 3 marker jinak (baseline + 2 quote) ke satu endpoint aset "
-                    "dan baca pantulan error DB. Tanpa ekstraksi data.",
+        description="Kirim 5 marker jinak per parameter (baseline, 2 quote, "
+                    "boolean TRUE/FALSE) lalu nilai jadi skor + DBMS + severity. "
+                    "Tanpa ekstraksi data.",
         official_repo="(port dari probe simulator offensive-lab Kartika -- stdlib)",
         required_env_vars=["KARTIKA_SQLI_PROBE_ENABLED"],
-        capability_summary="Deteksi dini pantulan error SQL (bukan eksploitasi)",
+        capability_summary="Skor kerentanan injeksi SQL per parameter (bukan eksploitasi)",
         binary_name=None,
     )
 
@@ -148,34 +260,57 @@ class KartikaSqliProbeAdapter(BaseIntegrationAdapter):
 
         params = parameters or {}
         path = str(params.get("path", base_path or "/") or "/").strip() or "/"
-        param = str(params.get("param", "id") or "id").strip()
         if not path.startswith("/") or ".." in path or any(ch.isspace() for ch in path):
             return ExecutionResult(False, "Parameter 'path' ditolak (absolut, tanpa spasi/..).")
-        if not param.replace("_", "").isalnum() or len(param) > 64:
-            return ExecutionResult(False, "Parameter 'param' ditolak (alnumaksimal 64 char).")
+        wanted: list[str] = []
+        raw_params = params.get("params", params.get("param", "id"))
+        candidates = raw_params if isinstance(raw_params, list) else str(raw_params).split(",")
+        for cand in candidates[:5]:  # maks 5 parameter per run
+            name = str(cand or "").strip()
+            if name.replace("_", "").isalnum() and len(name) <= 64:
+                wanted.append(name)
+        if not wanted:
+            return ExecutionResult(False, "Parameter 'param(s)' ditolak (alnum, maks 64 char, maks 5).")
 
         _, refusal = resolve_guard(host)
         if refusal:
             return ExecutionResult(False, refusal)
 
-        def build(value: str) -> str:
+        def build(param: str, value: str) -> str:
             query = urllib.parse.urlencode({param: value})
             return f"{scheme}://{netloc(host, port)}{path}?{query}"
 
+        def probe_param(param: str) -> tuple[str, int, list[str], list[str], list[str]]:
+            fits = {
+                "baseline": fetch_probe(build(param, BASELINE)),
+                "quote1": None, "quote2": None, "bool_true": None, "bool_false": None,
+            }
+            time.sleep(0.3)
+            fits["quote1"] = fetch_probe(build(param, BASELINE + "'"))
+            time.sleep(0.3)
+            fits["quote2"] = fetch_probe(build(param, BASELINE + '"'))
+            time.sleep(0.3)
+            fits["bool_true"] = fetch_probe(build(param, BASELINE + BOOL_TRUE_SUFFIX))
+            time.sleep(0.3)
+            fits["bool_false"] = fetch_probe(build(param, BASELINE + BOOL_FALSE_SUFFIX))
+            label, score, signals, findings, advice = assess(fits)  # type: ignore[arg-type]
+            return label, score, signals, findings, advice
+
         try:
-            base = fetch_probe(build(BASELINE))
-            time.sleep(0.5)
-            quote1 = fetch_probe(build(BASELINE + "'"))
-            time.sleep(0.5)
-            quote2 = fetch_probe(build(BASELINE + '"'))
+            per_param = [(param, *probe_param(param)) for param in wanted]
         except Exception as exc:  # kontrak: tidak boleh bocor jadi 500
             return ExecutionResult(False, f"Probe gagal jalan: {exc.__class__.__name__}")
 
-        label, findings, advice = verdict(base, quote1, quote2)
+        worst_param, _ = aggregate([(param, item[0]) for param, *item in per_param])
+        w_label, w_score, w_signals, w_findings, w_advice = next(
+            item for param, *item in per_param if param == worst_param)
+        detail = " | ".join(f"{param}={item[0]}({item[1]})" for param, *item in per_param)
         lines = [
-            f"kartika_sqli_probe: {scheme}://{netloc(host, port)}{path}?{param}=... -> {label} "
-            f"(baseline {base[0]}, quote1 {quote1[0]}, quote2 {quote2[0]}).",
-            "Temuan: " + " | ".join(findings),
-            "Rekomendasi: " + " | ".join(advice),
+            f"kartika_sqli_probe: {scheme}://{netloc(host, port)}{path} "
+            f"-> {w_label} skor {w_score}/100 [{detail}].",
+            "Sinyal: " + (" + ".join(w_signals) if w_signals else "-"),
+            "Temuan: " + " | ".join(w_findings),
+            "Rekomendasi: " + " | ".join(w_advice),
+            f"Severity usulan: {SEVERITY_OF.get(w_label, 'INFO')} (siap dipetakan ke Finding GARDA).",
         ]
         return ExecutionResult(True, "\n".join(lines))
