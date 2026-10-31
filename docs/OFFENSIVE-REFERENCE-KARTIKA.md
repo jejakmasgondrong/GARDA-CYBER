@@ -34,6 +34,10 @@ hanya penanda trafik, bukan bagian identitas repo.
 
 - Tidak ada kode dari tautan di atas yang di-vendor ke repo ini.
 - Tidak ada adapter `tool_id` baru yang didaftarkan ke registry.
+- Stub non-fungsional: `backend/app/integrations/adapters/kartika_crash_stub_adapter.py`
+  (`tool_id` `kartika_crash_stub`, `implemented=False`, tidak di-import di
+  `registry.py`, `execute()` selalu gagal + pesan dinonaktifkan, tanpa
+  payload/network/target). Test: `backend/tests/test_kartika_crash_stub.py`.
 - Tidak ada eksekusi, tidak ada pengiriman payload, tidak ada target di luar
   aset lab sendiri.
 - Kalau ada kebutuhan deteksi (mis. pola virtex untuk `kartika_wa_phish`),
