@@ -26,3 +26,6 @@ frontend/.env.local
 *.log
 *.sqlite3
 *.db
+
+blueteam.env
+*.env

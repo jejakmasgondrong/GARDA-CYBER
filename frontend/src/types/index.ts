@@ -168,7 +168,7 @@ export interface JobListResponse {
   limit: number;
 }
 
-export interface IntegrationStatusV2 extends IntegrationStatus {
+export interface IntegrationStatusV2 extends Omit<IntegrationStatus, 'implemented'> {
   implemented?: boolean;
   installed?: boolean;
   executable?: boolean;

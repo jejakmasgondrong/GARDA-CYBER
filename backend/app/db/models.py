@@ -14,3 +14,4 @@ from app.models.ip_lookup import IpLookup
 from app.models.osint_lookup import OsintLookup
 from app.models.github_scan import GithubScanRun
 from app.models.job import Job
+from app.db.security_log import SecurityLog

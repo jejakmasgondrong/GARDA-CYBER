@@ -16,7 +16,14 @@ const JOB_STATUS_COLOR: Record<string, string> = {
 
 export default function RedTeam() {
   const [tools, setTools] = useState<IntegrationStatusV2[]>(
-    RED_TEAM_TOOLS.map((id) => ({ tool_id: id, display_name: id, configured: false, required_env_vars: [], official_repo: "" }))
+RED_TEAM_TOOLS.map((id) => ({ 
+  tool_id: id, 
+  display_name: id, 
+  configured: false, 
+  required_env_vars: [] as string[], 
+  official_repo: "",
+  capability_summary: "" // <--- TAMBAHKAN INI
+}))
   );
   const [assets, setAssets] = useState<Asset[]>([]);
   const [jobs, setJobs] = useState<JobResult[]>([]);
