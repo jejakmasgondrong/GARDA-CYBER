@@ -15,6 +15,7 @@ import type {
   Asset, FindingListResponse, IncidentListResponse, JobListResponse,
   IntegrationStatus, AuditLogEntry,
 } from '../types';
+import { LiveHero, LiveFeedRow, LiveBottomRow } from '../components/dashboard';
 
 // Chart colors from design tokens
 const COLORS = {
@@ -203,6 +204,8 @@ export default function Dashboard() {
         </div>
       )}
 
+      <LiveHero />
+
       {/* Charts Row 1: Findings + Incidents */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <ChartCard
@@ -371,6 +374,8 @@ export default function Dashboard() {
         </ChartCard>
       </div>
 
+      <LiveFeedRow />
+
       {/* Recent Security Events Table */}
       <ChartCard
         title="Recent Security Events"
@@ -431,6 +436,7 @@ export default function Dashboard() {
           </div>
         </ChartCard>
       )}
+      <LiveBottomRow />
     </PageLayout>
   );
 }

@@ -1,0 +1,17 @@
+/* Token tambahan untuk widget live dashboard. Hanya menambah, tidak mengubah token gc-* yang ada. */
+:root {
+  --gc-teal: #2DD4BF;
+  --gc-violet: #A78BFA;
+  --gc-orange: #FB923C;
+}
+.light {
+  --gc-teal: #0D9488;
+  --gc-violet: #7C3AED;
+  --gc-orange: #EA580C;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-live, .gc-live * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
