@@ -21,6 +21,9 @@ export interface IntegrationStatus {
   required_env_vars: string[];
   official_repo: string;
   capability_summary: string;
+  // Backend selalu mengirim dua field ini (lihat BaseIntegrationAdapter.status()).
+  installed?: boolean;
+  executable?: boolean;
 }
 
 export interface HealthResponse {
