@@ -9,7 +9,13 @@ import type { LiveTarget } from '../../hooks/useLiveTargets';
 
 /** Lokasi basis (SOC). Ubah di sini bila berpindah. */
 export const HOME = { lat: -7.8, lng: 110.4 };
-const HEIGHT = 340;
+const HEIGHT_MIN = 220;
+const HEIGHT_MAX = 340;
+
+/** Tinggi panggung globe mengikuti lebar: di ponsel tidak lagi memakan satu layar penuh. */
+function stageHeight(width: number): number {
+  return Math.min(HEIGHT_MAX, Math.max(HEIGHT_MIN, Math.round(width * 0.62)));
+}
 
 interface LiveGlobeProps {
   targets: LiveTarget[];
@@ -141,11 +147,11 @@ function GlobeInner({ targets, activeCount, unlocated, backendDown }: LiveGlobeP
   const dotColor = backendDown ? 'var(--gc-warning)' : activeCount > 0 ? 'var(--gc-primary)' : 'var(--gc-success)';
 
   return (
-    <div ref={wrapRef} className="relative w-full overflow-hidden rounded-gc" style={{ height: HEIGHT }}>
+    <div ref={wrapRef} className="relative w-full overflow-hidden rounded-gc" style={{ height: stageHeight(width) }}>
       <Globe
         ref={globeRef}
         width={width}
-        height={HEIGHT}
+        height={stageHeight(width)}
         backgroundColor="rgba(0,0,0,0)"
         onGlobeReady={() => setReady(true)}
         globeMaterial={globeMat}

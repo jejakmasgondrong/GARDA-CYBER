@@ -78,7 +78,7 @@ export default function BlueTeam() {
       {/* Search */}
       <div className="mb-4">
         <SearchInput value={search} onChange={e => setSearch(e.target.value)} onClear={() => setSearch('')}
-          placeholder="Cari IP, Kota, Email, Event..." />
+          placeholder="Cari IP, Kota, ISP, Event..." />
       </div>
 
       {error && <ErrorState message={error} onRetry={() => window.location.reload()} />}

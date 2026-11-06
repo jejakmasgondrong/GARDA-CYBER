@@ -46,7 +46,7 @@ export function LiveHero() {
     </div>
   );
 
-  const fallback = <Skeleton className="h-[340px] w-full" />;
+  const fallback = <Skeleton className="h-[220px] w-full sm:h-[340px]" />;
 
   return (
     <div className="gc-live mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">

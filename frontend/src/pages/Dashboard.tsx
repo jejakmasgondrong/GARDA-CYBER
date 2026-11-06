@@ -189,10 +189,11 @@ export default function Dashboard() {
         <StatCard
           label="Integrations"
           value={loading ? '—' : `${configuredIntegrations} / ${integrations.length}`}
-          subtitle="Configured"
+          subtitle="Terkonfigurasi"
           icon={<Plug className="h-5 w-5 text-[var(--gc-success)]" />}
           loading={loading}
           onClick={() => navigate('/integrations')}
+          className="col-span-2 sm:col-span-1"
         />
       </div>
 

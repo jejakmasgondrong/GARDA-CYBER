@@ -12,7 +12,6 @@ import { StatusIndicator } from '../ui/StatusIndicator';
 
 interface TopBarProps {
   title: string;
-  subtitle?: string;
 }
 
 interface CommandItem {
@@ -41,7 +40,7 @@ const COMMAND_ITEMS: CommandItem[] = [
   { id: 'settings', label: 'Settings', path: '/settings', icon: Settings, group: 'System' },
 ];
 
-export function TopBar({ title, subtitle }: TopBarProps) {
+export function TopBar({ title }: TopBarProps) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -106,7 +105,6 @@ export function TopBar({ title, subtitle }: TopBarProps) {
             <span>/</span>
             <span className="text-[var(--gc-text)] font-medium truncate">{title}</span>
           </div>
-          {subtitle && <p className="text-[11px] text-[var(--gc-text-secondary)] mt-0.5">{subtitle}</p>}
         </div>
 
         {/* Right: actions */}

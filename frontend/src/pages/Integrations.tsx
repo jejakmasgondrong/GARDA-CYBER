@@ -15,9 +15,9 @@ export default function Integrations() {
   }, []);
 
   const getLabel = (t: IntegrationStatus) => {
-    if (!t.implemented) return { text: 'Not Implemented', variant: 'default' as const };
-    if (t.configured) return { text: 'Configured', variant: 'success' as const };
-    return { text: 'Not Configured', variant: 'warning' as const };
+    if (!t.implemented) return { text: 'Belum Diimplementasikan', variant: 'default' as const };
+    if (t.configured) return { text: 'Terkonfigurasi', variant: 'success' as const };
+    return { text: 'Belum Dikonfigurasi', variant: 'warning' as const };
   };
 
   return (
@@ -36,7 +36,7 @@ export default function Integrations() {
               <p className="text-xs text-[var(--gc-text-secondary)] mb-3 leading-relaxed">{t.capability_summary}</p>
               {t.required_env_vars.length > 0 && (
                 <div className="mb-2">
-                  <p className="text-[10.5px] uppercase text-[var(--gc-text-secondary)] mb-1">Required Variables</p>
+                  <p className="text-[10.5px] uppercase text-[var(--gc-text-secondary)] mb-1">Variabel Wajib</p>
                   <div className="flex flex-wrap gap-1">
                     {t.required_env_vars.map(v => (
                       <code key={v} className="rounded bg-[var(--gc-surface)] px-1.5 py-0.5 text-[10px] text-[var(--gc-text-secondary)]">{v}</code>

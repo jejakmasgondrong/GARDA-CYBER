@@ -36,3 +36,6 @@ venv/
 
 # Snapshot masuk (bahan review, jangan di-commit)
 _incoming/
+
+# Screenshot review UI (PC + mobile), bukan bagian aplikasi
+screenshots/
