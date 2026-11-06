@@ -16,6 +16,10 @@ kalau datanya nol, kartu menampilkan keadaan kosong, bukan angka contoh.
 | Job Manager | Bar durasi rata-rata per tool | Satuan otomatis (ms untuk tool cepat, detik untuk job panjang) |
 | Asset Inventory | Bar aset per tipe | Domain / IP / Aplikasi / Perangkat / Lainnya |
 | Asset Inventory | Donut status aset | Aktif / Nonaktif / Perlu Tinjauan |
+| Vulnerability Mgmt | Donut sumber temuan | OSINT / GitHub Exposure / IP Intelligence / Manual review |
+| Vulnerability Mgmt | Bar bertumpuk keyakinan per sumber | high / medium / low per sumber |
+| Attack Surface | Donut status pemeriksaan | dari riwayat lookup (`/osint/history`) |
+| Attack Surface | Bar domain paling sering diperiksa | lima teratas |
 | Reports | Bar temuan per kategori | Isi Vulnerability Report |
 
 Selain itu:
@@ -23,6 +27,8 @@ Selain itu:
 - Dashboard: kolom keterangan di samping globe (job berjalan, target tanpa lokasi,
   status backend, daftar target, legenda titik).
 - Topologi: legenda "Aset nonaktif" ditambahkan.
+- Attack Surface: badge sisa umur sertifikat TLS ("berlaku N hari lagi" /
+  "kedaluwarsa N hari lalu") muncul di hasil lookup, warnanya mengikuti sisa hari.
 - Kartu diagram kosong sekarang memakai bingkai berpetak dengan keterangan —
   terlihat sebagai "area diagram yang belum ada isinya", bukan kartu rusak.
 - Semua diagram memakai palet bersama di `src/lib/chartTheme.ts`.
@@ -51,11 +57,16 @@ dipakai script seed yang menulis lewat endpoint POST yang sama dengan manusia:
 python backend/scripts/seed_demo.py --base http://127.0.0.1:8000
 python backend/scripts/seed_demo.py --base http://127.0.0.1:8000 --dry-run
 python backend/scripts/seed_demo.py --base http://127.0.0.1:8000 --skip-existing
+python backend/scripts/seed_demo.py --base http://127.0.0.1:8000 --with-osint
 ```
 
 Isi: 5 aset, 8 temuan, 4 insiden, 2 job `kartika_wa_phish` (analisis teks
 offline — **tanpa** lalu lintas jaringan, tanpa load test). Semua baris diberi
 awalan `[seed]`.
+
+Flag `--with-osint` menjalankan lookup DNS + TLS ke `example.com` dan
+`example.net` (domain yang disediakan IANA untuk contoh) agar riwayat Attack
+Surface terisi. Hanya dua domain itu; tidak ada scanning port atau fuzzing.
 
 Catatan: API belum punya endpoint DELETE, jadi pembersihan dilakukan dengan
 menghapus database sqlite lokal (lihat `DATABASE_URL`) atau lewat SQL.

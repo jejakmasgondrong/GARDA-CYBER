@@ -111,6 +111,8 @@ def main() -> int:
     ap.add_argument("--base", default="http://127.0.0.1:8000", help="URL backend")
     ap.add_argument("--dry-run", action="store_true", help="hanya tampilkan rencana")
     ap.add_argument("--skip-existing", action="store_true", help="batalkan kalau sudah ada data bertanda seed")
+    ap.add_argument("--with-osint", action="store_true",
+                    help="jalankan lookup OSINT DNS+TLS ke domain publik contoh (example.com) agar riwayat Attack Surface terisi")
     args = ap.parse_args()
     base = args.base.rstrip("/")
 
@@ -118,13 +120,20 @@ def main() -> int:
     if existing is None:
         print(f"Backend tidak menjawab di {base}/api/v1/assets. Jalankan uvicorn dulu.")
         return 1
-    already = [a for a in existing if str(a.get("name", "")).startswith(TAG)]
-    if already and args.skip_existing:
-        print(f"Sudah ada {len(already)} aset bertanda {TAG}; dilewati (--skip-existing).")
-        return 0
-
     now = datetime.now(timezone.utc)
     print(f"Base: {base}{'  [DRY RUN]' if args.dry_run else ''}")
+
+    if args.with_osint:
+        print("0) Lookup OSINT (domain publik contoh, hanya DNS + TLS)")
+        # example.com / example.net disediakan IANA untuk contoh. Tidak ada
+        # scanning port, tidak ada fuzzing, dan tidak ada target lain.
+        for domain in ("example.com", "example.net"):
+            post(base, "/api/v1/osint/lookup", {"domain": domain}, args.dry_run)
+
+    already = [a for a in existing if str(a.get("name", "")).startswith(TAG)]
+    if already and args.skip_existing:
+        print(f"Sudah ada {len(already)} aset bertanda {TAG}; sisanya dilewati (--skip-existing).")
+        return 0
 
     print("1) Aset")
     for asset in ASSETS:
@@ -177,7 +186,8 @@ def main() -> int:
     else:
         print("  (tidak ada aset seed untuk dijadikan label job)")
 
-    print("Selesai. Buka dashboard, Findings, Insiden, Job Manager, dan Reports.")
+    print("Selesai. Buka dashboard, Findings, Insiden, Job Manager, Reports,")
+    print("Vulnerability Management, dan Attack Surface.")
     return 0
 
 
