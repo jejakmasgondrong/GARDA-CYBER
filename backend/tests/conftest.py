@@ -9,6 +9,10 @@ menyebabkan collision (mis. dedupe_key 409).
 import os
 
 os.environ["DATABASE_URL"] = "sqlite:///./garda_cyber_test.db"
+# Access log middleware menulis ke DB di luar transaksi tes: bikin suite lambat
+# (220 detik vs 10 detik) dan meninggalkan baris di antara tes. Matikan di sini;
+# perilaku middleware-nya sendiri diuji terpisah, bukan lewat seluruh suite.
+os.environ["ACCESS_LOG_ENABLED"] = "0"
 
 import pytest
 from fastapi.testclient import TestClient

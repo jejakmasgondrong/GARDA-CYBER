@@ -8,7 +8,11 @@ services:
       context: ..
       dockerfile: deployment/Dockerfile.backend
     env_file:
-      - ../backend/.env
+      # `required: false` supaya `docker compose up` tetap jalan walau
+      # backend/.env belum dibuat (Compose >= 2.24). Salin dari .env.example
+      # kalau butuh mengisi API_KEY atau integrasi.
+      - path: ../backend/.env
+        required: false
     ports:
       - "8000:8000"
     volumes:

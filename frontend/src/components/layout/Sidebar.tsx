@@ -131,6 +131,11 @@ export function Sidebar() {
         ))}
       </nav>
 
+      {/* Versi aplikasi: sumber tunggal package.json, wajib sama dengan tag git */}
+      <div className={`border-t border-[var(--gc-border)] px-3 py-2 text-[10.5px] text-[var(--gc-text-secondary)] ${collapsed ? 'text-center' : ''}`}>
+        {collapsed ? `v${__APP_VERSION__}` : `GARDA CYBER v${__APP_VERSION__}`}
+      </div>
+
       {/* Collapse toggle - desktop only */}
       <div className="hidden lg:flex border-t border-[var(--gc-border)] p-2">
         <button

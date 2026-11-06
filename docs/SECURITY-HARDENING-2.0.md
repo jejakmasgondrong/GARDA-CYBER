@@ -48,3 +48,48 @@ berisiko kalau ikut di-PR. Semua masih bisa diambil kembali dari branch asli
 git show kawan/feat/live-globe:backend/app/index.html > backend/app/index.html
 git show kawan/feat/live-globe:backend/app/main.py   # rujukan endpoint asli
 ```
+
+---
+
+## Ronde 2 (v0.2.0): API key, access log, versi terlihat
+
+### API key (opsional, tapi wajib kalau port terbuka)
+
+`API_KEY` di `backend/.env`. Kalau diisi:
+
+- semua `/api/v1/*` wajib mengirim header `X-API-Key` dengan nilai sama;
+- yang dikecualikan: `/api/v1/health`, `/api/v1/ready`, `/docs`, `/openapi.json`, dan aset statis
+  (supaya pemantau/load balancer tidak ikut terkunci).
+- kosong = tanpa auth, hanya untuk pemakaian lokal.
+
+Frontend: kolom isian di **Settings → API Key**, nilainya disimpan di localStorage browser
+dan dikirim sebagai `X-API-Key` oleh `lib/apiClient.ts`. Balasan 401 memunculkan pesan
+"isi di halaman Settings", bukan pesan mentah dari backend.
+
+Alasan: `POST /api/v1/jobs` bisa menjalankan `kartika_load` / `kartika_sqli_probe` ke target
+apa pun yang terdaftar. Tanpa penjagaan, siapa pun yang menjangkau port itu bisa memakainya.
+
+### Access log untuk Blue Team
+
+Sebelumnya `/blue-team` akan selalu kosong: satu-satunya penulis tabel `security_logs`
+adalah endpoint panen kredensial yang sudah dicabut. Sekarang ada middleware yang mencatat
+**metode, path, kode status, IP, waktu** setiap permintaan `/api/*`.
+
+Yang **sengaja tidak** dicatat: body request, cookie, header otorisasi, email, password.
+Tabel dipangkas otomatis ke `ACCESS_LOG_MAX_ROWS` (default 500) baris terbaru.
+
+Halaman Blue Team: badge kode status (hijau 2xx, kuning 4xx, merah 5xx), kartu
+"Respons 4xx/5xx", dan keterangan bahwa ini log akses server, bukan data pengguna.
+
+### Versioning
+
+- `__APP_VERSION__` disuntik dari `frontend/package.json` lewat `define` di `vite.config.ts`,
+  jadi angka di sidebar dan halaman Settings tidak bisa melenceng dari package.json.
+- `package.json` + `package-lock.json` = **0.2.0**, git tag **v0.2.0**.
+- Dependensi baru: `@types/node` (dev) — `vite.config.ts` memakai `path`/`__dirname`
+  yang sebelumnya lolos hanya karena cache incremental `tsc -b`.
+
+### Docker Compose
+
+`env_file` sekarang memakai bentuk panjang `required: false` (Compose ≥ 2.24), sehingga
+`docker compose up` tetap jalan walau `backend/.env` belum dibuat.

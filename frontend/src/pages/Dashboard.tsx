@@ -55,9 +55,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // KPI dan diagram ikut menyegarkan diri; sebelumnya hanya widget "live" yang
+  // polling, sehingga angka di kartu diam sampai halaman di-reload.
   useEffect(() => {
+    let pertama = true;
     const fetchAll = async () => {
-      setLoading(true);
+      if (pertama) setLoading(true);
       const errs: Record<string, string> = {};
 
       await Promise.allSettled([
@@ -71,8 +74,13 @@ export default function Dashboard() {
 
       setErrors(errs);
       setLoading(false);
+      pertama = false;
     };
-    fetchAll();
+    void fetchAll();
+    const timer = setInterval(() => {
+      if (!document.hidden) void fetchAll();
+    }, 15000);
+    return () => clearInterval(timer);
   }, []);
 
   // Computed stats
@@ -151,7 +159,7 @@ export default function Dashboard() {
   const allErrored = Object.keys(errors).length >= 5;
 
   return (
-    <PageLayout title="Dashboard" subtitle="Security Command Center — Ringkasan postur keamanan">
+    <PageLayout title="Dashboard" subtitle="Security Command Center — ringkasan postur keamanan, diperbarui tiap 15 detik">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 mb-6">
         <StatCard

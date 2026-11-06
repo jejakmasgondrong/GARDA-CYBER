@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     # --- Frontend / CORS ---
     FRONTEND_ORIGIN: str = "http://localhost:5173"
 
+    # --- Keamanan API ---
+    # Kalau diisi, semua endpoint /api/v1/* (kecuali health/ready) wajib
+    # mengirim header "X-API-Key" dengan nilai yang sama. Kosong = tanpa auth,
+    # hanya boleh untuk pemakaian lokal.
+    API_KEY: str = ""
+    # Catat akses API ke tabel security_logs (dipakai halaman Blue Team).
+    ACCESS_LOG_ENABLED: bool = True
+    ACCESS_LOG_MAX_ROWS: int = 500
+
     # --- Secret (wajib diisi sebelum production, kosong secara default) ---
     SECRET_KEY: str = ""
 
