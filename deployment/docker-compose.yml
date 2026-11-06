@@ -8,7 +8,7 @@ services:
       context: ..
       dockerfile: deployment/Dockerfile.backend
     env_file:
-      - ../backend/blueteam.env # FILE BLUE TIME DI BACKEND
+      - ../backend/.env
     ports:
       - "8000:8000"
     volumes:
@@ -26,29 +26,10 @@ services:
     depends_on:
       - backend
 
-#N8N SERVICES MASUK DISINI 
- 
-  n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
-    container_name: kiong
-    restart: always
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_HOST=profession-naples-leonard-had.trycloudflare.com
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - NODE_ENV=production
-      - WEBHOOK_URL= https://revision-medical-concentration-cemetery.trycloudflare.com/
-      - GENERIC_TIMEZONE=Asia/Makassar
-    volumes:
-      - n8n_data:/home/node/.n8n
-      
-      # WAHA WHATSAAP MASUK SINI 
-
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  
+# Automation/webhook (n8n) sengaja TIDAK didefinisikan di sini:
+# versi awal 2.0 menunjuk tunnel trycloudflare milik pribadi, yang bukan
+# bagian dari deployment repo ini. Kalau butuh, daftarkan sebagai service
+# terpisah dengan URL milik sendiri.
 
 volumes:
   garda_cyber_db:
-  n8n_data:

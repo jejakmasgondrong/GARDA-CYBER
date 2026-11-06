@@ -66,6 +66,15 @@ class Settings(BaseSettings):
         return [r.strip() for r in self.GITHUB_EXPOSURE_ALLOWED_REPOS.split(",") if r.strip()]
 
     @property
+    def cors_origins_list(self) -> list[str]:
+        """Origin yang diizinkan CORS, dipisah koma. Default hanya dev server lokal.
+
+        Sengaja tidak memakai "*": CORS terbuka membuat halaman mana pun bisa
+        memanggil API ini dari browser pengguna.
+        """
+        return [o.strip() for o in self.FRONTEND_ORIGIN.split(",") if o.strip()]
+
+    @property
     def is_production(self) -> bool:
         return self.APP_ENV.lower() == "production"
 
