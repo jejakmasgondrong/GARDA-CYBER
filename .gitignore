@@ -26,6 +26,13 @@ _reference/
 
 # CATATAN: Folder dist/ (hasil build React) TIDAK di-ignore,
 # agar Dashboard Blue Team ikut ter-upload ke GitHub.
+# Khusus backend/app/dist/ -- itu yang disajikan FastAPI.
+# frontend/dist/ hanya hasil build sementara, tidak perlu di-commit (duplikat 2,8 MB).
+frontend/dist/
+
+# Virtualenv lokal
+**/.venv/
+venv/
 
 # Snapshot masuk (bahan review, jangan di-commit)
 _incoming/

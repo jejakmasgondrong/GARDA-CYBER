@@ -153,9 +153,9 @@ nol jejak publik) tercatat di percakapan, bukan di repo (privasi nomor).
 - `python -m py_compile` semua file berubah: OK.
 - `python backend/tests/test_kartika_load_adapter.py`: 7/7 PASS
   (echo `http.server` lokal, resolve-guard via monkeypatch, tanpa internet).
-- Full suite (`pytest`) + `test_integrations_registry` (butuh tambah
-  `kartika_load` ke expected set) belum dijalankan di sini -- deps backend
-  (fastapi/sqlalchemy) tidak ada di mesin draft; wajib hijau sebelum PR.
+- **Full suite (2026-11-06, mesin dengan deps lengkap): `pytest -q` = 111 passed**
+  — termasuk `test_integrations_registry` (expected set 12 -> 15) dan seluruh
+  test Kartika. Venv: `backend/.venv` (fastapi 0.162, sqlalchemy 2.1.8, pytest 9.2).
 
 ## Demo 3 menit untuk kawan
 

@@ -4,7 +4,17 @@ import { Badge, ConfirmationDialog, DataTable, type Column } from '../components
 import { apiClient, ApiError } from '../lib/apiClient';
 import type { Asset, IntegrationStatusV2, JobResult } from '../types';
 
-const RED_TEAM_TOOLS = ['nmap', 'nuclei', 'amass', 'owasp_zap', 'greenbone'];
+const RED_TEAM_TOOLS = [
+  'nmap',
+  'nuclei',
+  'amass',
+  'owasp_zap',
+  'greenbone',
+  // Adapter dari lab Kartika (draft) — engine stdlib, tanpa binary eksternal.
+  'kartika_load',
+  'kartika_sqli_probe',
+  'kartika_wa_phish',
+];
 const JOB_STATUS: Record<string, { label: string; variant: 'default' | 'warning' | 'success' | 'critical' }> = {
   queued: { label: 'Antre', variant: 'default' },
   running: { label: 'Berjalan', variant: 'warning' },
