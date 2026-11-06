@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { PageLayout } from '../components/layout/PageLayout';
-import { DataTable, Badge, SearchInput, Select, Pagination, Drawer, ErrorState, type Column } from '../components/ui';
+import { DataTable, Badge, SearchInput, Select, Pagination, Drawer, ErrorState, ChartCard, type Column } from '../components/ui';
 import { apiClient } from '../lib/apiClient';
+import { CHART, CONFIDENCE_COLORS, FINDING_STATUS_COLORS, TOOLTIP_STYLE } from '../lib/chartTheme';
 import type { FindingListResponse, Finding, FindingStatus } from '../types';
 
 const STATUS_BADGE: Record<FindingStatus, { variant: 'warning' | 'primary' | 'success' | 'default'; label: string }> = {
@@ -42,6 +44,30 @@ export default function Findings() {
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(filtered.length / pageSize);
 
+  // Diagram ringkasan dihitung dari data yang sudah diambil (bukan angka contoh).
+  const byConfidence = useMemo(() => {
+    const items = data?.items ?? [];
+    return (['high', 'medium', 'low'] as const)
+      .map(k => ({ name: k, value: items.filter(f => f.confidence === k).length }))
+      .filter(d => d.value > 0);
+  }, [data]);
+
+  const byCategory = useMemo(() => {
+    const items = data?.items ?? [];
+    const counts = new Map<string, number>();
+    for (const f of items) counts.set(f.category, (counts.get(f.category) ?? 0) + 1);
+    return [...counts.entries()]
+      .map(([k, v]) => ({ name: CAT_LABEL[k] ?? k, value: v }))
+      .sort((a, b) => b.value - a.value);
+  }, [data]);
+
+  const byStatus = useMemo(() => {
+    const items = data?.items ?? [];
+    return (Object.keys(STATUS_BADGE) as FindingStatus[])
+      .map(k => ({ name: STATUS_BADGE[k].label, key: k, value: items.filter(f => f.status === k).length }))
+      .filter(d => d.value > 0);
+  }, [data]);
+
   const columns: Column<Finding>[] = [
     { key: 'title', header: 'Judul', sortable: true, render: f => <span className="font-medium">{f.title}</span> },
     { key: 'category', header: 'Kategori', render: f => <Badge variant="info">{CAT_LABEL[f.category] ?? f.category}</Badge> },
@@ -55,6 +81,65 @@ export default function Findings() {
     <PageLayout title="Findings" subtitle="Semua temuan dari IP Intelligence, OSINT, dan GitHub Exposure">
       {error ? <ErrorState message={error} onRetry={() => window.location.reload()} /> : (
         <>
+          {/* Ringkasan visual: muncul hanya kalau memang ada data */}
+          <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+            <ChartCard
+              title="Tingkat Keyakinan"
+              subtitle="Sebaran confidence temuan"
+              loading={loading}
+              empty={byConfidence.length === 0}
+              emptyMessage="Belum ada temuan. Jalankan IP Intelligence, OSINT, atau GitHub Exposure untuk mengisi diagram ini."
+            >
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie isAnimationActive={false} data={byConfidence} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                    {byConfidence.map(d => <Cell key={d.name} fill={CONFIDENCE_COLORS[d.name] ?? CHART.text} />)}
+                  </Pie>
+                  <ReTooltip contentStyle={TOOLTIP_STYLE} />
+                  <Legend wrapperStyle={{ fontSize: '11px', color: CHART.text }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Per Kategori"
+              subtitle="Sumber temuan terbanyak"
+              loading={loading}
+              empty={byCategory.length === 0}
+              emptyMessage="Kategori muncul setelah ada temuan tercatat."
+            >
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={byCategory} layout="vertical" barSize={16} margin={{ left: 8, right: 12 }}>
+                  <CartesianGrid stroke={CHART.border} strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" allowDecimals={false} tick={{ fill: CHART.text, fontSize: 11 }} stroke={CHART.border} />
+                  <YAxis type="category" dataKey="name" width={100} tick={{ fill: CHART.text, fontSize: 11 }} stroke={CHART.border} />
+                  <ReTooltip contentStyle={TOOLTIP_STYLE} />
+                  <Bar isAnimationActive={false} dataKey="value" fill={CHART.primary} radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Status Penanganan"
+              subtitle="Sudah sejauh mana ditangani"
+              loading={loading}
+              empty={byStatus.length === 0}
+              emptyMessage="Status muncul setelah temuan ditriase."
+            >
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={byStatus} barSize={28} margin={{ left: -18, right: 8 }}>
+                  <CartesianGrid stroke={CHART.border} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fill: CHART.text, fontSize: 10 }} stroke={CHART.border} interval={0} />
+                  <YAxis allowDecimals={false} tick={{ fill: CHART.text, fontSize: 11 }} stroke={CHART.border} />
+                  <ReTooltip contentStyle={TOOLTIP_STYLE} />
+                  <Bar isAnimationActive={false} dataKey="value" radius={[4, 4, 0, 0]}>
+                    {byStatus.map(d => <Cell key={d.key} fill={FINDING_STATUS_COLORS[d.key] ?? CHART.text} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center mb-4">
             <SearchInput value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} onClear={() => setSearch('')} placeholder="Cari judul finding..." className="flex-1" />
             <Select options={[{ value: 'open', label: 'Open' }, { value: 'triaged', label: 'Triaged' }, { value: 'remediated', label: 'Remediated' }, { value: 'false_positive', label: 'False Positive' }]}

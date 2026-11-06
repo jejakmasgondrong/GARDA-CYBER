@@ -86,6 +86,12 @@ export default function LiveTopology({ assets, activeAssetIds }: LiveTopologyPro
           <span className="h-2.5 w-2.5 rounded-full border" style={{ borderColor: 'var(--gc-primary)' }} />
           Job aktif
         </span>
+        {shown.some(a => a.status === 'inactive') && (
+          <span className="inline-flex items-center gap-1.5 opacity-50">
+            <span className="h-2 w-2 rounded-full" style={{ background: 'var(--gc-text-secondary)' }} />
+            Aset nonaktif
+          </span>
+        )}
         {hidden > 0 && <span>+{hidden} aset lainnya tidak ditampilkan</span>}
       </div>
     </div>

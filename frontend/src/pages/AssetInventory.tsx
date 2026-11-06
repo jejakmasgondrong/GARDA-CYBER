@@ -1,8 +1,22 @@
 import { useEffect, useState, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { PageLayout } from '../components/layout/PageLayout';
-import { DataTable, Badge, SearchInput, Select, Pagination, Drawer, ErrorState, type Column } from '../components/ui';
+import { DataTable, Badge, SearchInput, Select, Pagination, Drawer, ErrorState, ChartCard, type Column } from '../components/ui';
 import { apiClient } from '../lib/apiClient';
+import { CHART, TOOLTIP_STYLE } from '../lib/chartTheme';
 import type { Asset } from '../types';
+
+const ASSET_TYPE_LABEL: Record<string, string> = {
+  domain: 'Domain', ip: 'IP', application: 'Aplikasi', device: 'Perangkat', other: 'Lainnya',
+};
+
+const ASSET_STATUS_LABEL: Record<string, string> = {
+  active: 'Aktif', inactive: 'Nonaktif', pending_review: 'Perlu Tinjauan',
+};
+
+const ASSET_STATUS_COLOR: Record<string, string> = {
+  active: CHART.success, inactive: CHART.text, pending_review: CHART.warning,
+};
 
 export default function AssetInventory() {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -36,6 +50,20 @@ export default function AssetInventory() {
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(filtered.length / pageSize);
 
+  const byType = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const a of assets) counts.set(a.asset_type, (counts.get(a.asset_type) ?? 0) + 1);
+    return [...counts.entries()]
+      .map(([k, v]) => ({ name: ASSET_TYPE_LABEL[k] ?? k, value: v }))
+      .sort((a, b) => b.value - a.value);
+  }, [assets]);
+
+  const byStatus = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const a of assets) counts.set(a.status, (counts.get(a.status) ?? 0) + 1);
+    return [...counts.entries()].map(([k, v]) => ({ key: k, name: ASSET_STATUS_LABEL[k] ?? k, value: v }));
+  }, [assets]);
+
   const statusBadge = (s: string) => {
     const map: Record<string, 'success' | 'warning' | 'default'> = {
       active: 'success', inactive: 'default', pending_review: 'warning',
@@ -53,7 +81,7 @@ export default function AssetInventory() {
     { key: 'type', header: 'Tipe', sortable: true, render: a => <Badge variant="info">{a.asset_type}</Badge> },
     { key: 'owner', header: 'Pemilik', render: a => <span className="text-[var(--gc-text-secondary)]">{a.owner ?? '—'}</span> },
     { key: 'status', header: 'Status', sortable: true, render: a => statusBadge(a.status) },
-    { key: 'updated', header: 'Last Updated', render: a => (
+    { key: 'updated', header: 'Diperbarui', render: a => (
       <span className="text-xs text-[var(--gc-text-secondary)]">
         {new Date(a.updated_at).toLocaleString('id-ID')}
       </span>
@@ -66,6 +94,45 @@ export default function AssetInventory() {
         <ErrorState message={error} onRetry={() => window.location.reload()} />
       ) : (
         <>
+          <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+            <ChartCard
+              className="lg:col-span-2"
+              title="Aset per Tipe"
+              subtitle="Sebaran jenis aset yang terdaftar"
+              loading={loading}
+              empty={byType.length === 0}
+              emptyMessage="Belum ada aset. Tambahkan lewat API POST /assets atau halaman ini."
+            >
+              <ResponsiveContainer width="100%" height={190}>
+                <BarChart data={byType} barSize={32} margin={{ left: -20, right: 8 }}>
+                  <CartesianGrid stroke={CHART.border} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fill: CHART.text, fontSize: 11 }} stroke={CHART.border} />
+                  <YAxis allowDecimals={false} tick={{ fill: CHART.text, fontSize: 11 }} stroke={CHART.border} />
+                  <ReTooltip contentStyle={TOOLTIP_STYLE} />
+                  <Bar isAnimationActive={false} dataKey="value" fill={CHART.primary} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Status Aset"
+              subtitle="Siap dipakai atau belum"
+              loading={loading}
+              empty={byStatus.length === 0}
+              emptyMessage="Status muncul setelah ada aset terdaftar."
+            >
+              <ResponsiveContainer width="100%" height={190}>
+                <PieChart>
+                  <Pie isAnimationActive={false} data={byStatus} dataKey="value" nameKey="name" innerRadius={42} outerRadius={72} paddingAngle={2}>
+                    {byStatus.map(d => <Cell key={d.key} fill={ASSET_STATUS_COLOR[d.key] ?? CHART.text} />)}
+                  </Pie>
+                  <ReTooltip contentStyle={TOOLTIP_STYLE} />
+                  <Legend wrapperStyle={{ fontSize: '11px', color: CHART.text }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
           {/* Filters */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center mb-4">
             <SearchInput
