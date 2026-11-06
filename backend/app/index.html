@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login - GARDA CYBER</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #020617; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .login-box { background: #0f172a; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid #1e293b; position: relative; }
+        .logo { text-align: center; font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 10px; letter-spacing: 2px; }
+        .subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
+        input { width: 100%; padding: 12px; background: #020617; border: 1px solid #334155; border-radius: 6px; color: #fff; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #3b82f6; }
+        button { width: 100%; padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #475569; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 15px; font-size: 13px; font-weight: bold; min-height: 20px; }
+        .security-note { text-align: center; font-size: 11px; color: #64748b; margin-top: 20px; line-height: 1.4; }
+        .security-note span { color: #3b82f6; font-weight: bold; }
+
+        /* OVERLAY MERAH PENGHALANG (HARD BLOCK) */
+        .block-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.98); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; text-align: center; padding: 20px; box-sizing: border-box; }
+        .block-icon { font-size: 70px; color: #ef4444; margin-bottom: 20px; animation: pulse 1s infinite; }
+        .block-title { font-size: 24px; font-weight: bold; color: #ef4444; margin-bottom: 10px; }
+        .block-desc { font-size: 14px; color: #94a3b8; max-width: 300px; line-height: 1.5; margin-bottom: 30px; }
+        .block-btn { padding: 15px 30px; background: #ef4444; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .block-btn:hover { background: #dc2626; }
+        .block-note { margin-top: 20px; font-size: 11px; color: #64748b; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY PENGHALANG (SENSOR OTOMATIS) -->
+    <div id="blockOverlay" class="block-overlay">
+        <div class="block-icon">🚫</div>
+        <div class="block-title">AKSES DITOLAK</div>
+        <div class="block-desc">Sistem mendeteksi lokasi Anda tidak aktif. Anda <b>wajib</b> mengaktifkan GPS dan memberikan izin untuk dapat mengakses GARDA CYBER.</div>
+        <button class="block-btn" onclick="retryLocation()">Aktifkan Lokasi & Coba Lagi</button>
+        <div class="block-note">Jika pop-up tidak muncul, klik ikon gembok di address bar dan izinkan lokasi.</div>
+    </div>
+
+    <div class="login-box">
+        <div class="logo">🛡️ GARDA CYBER</div>
+        <div class="subtitle">Secure Access Portal</div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="admin@gardacyber.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="btnLogin">Masuk ke Sistem</button>
+            <div id="status"></div>
+            <div class="security-note">
+                <span>🔒 Keamanan Sistem:</span> Akses ditolak jika Anda tidak mengaktifkan verifikasi lokasi (GPS).
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 1. FUNGSI UNTUK MENAMPILKAN OVERLAY
+        function showBlockOverlay() {
+            document.getElementById('blockOverlay').style.display = "flex";
+        }
+
+        // 2. FUNGSI UNTUK MENYEMBUNYIKAN OVERLAY
+        function hideBlockOverlay() {
+            document.getElementById('blockOverlay').style.display = "none";
+        }
+
+        // 3. SENSOR OTOMATIS SAAT HALAMAN DIBUKA
+        window.onload = function() {
+            if (navigator.permissions) {
+                navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+                    if (result.state === 'denied') {
+                        showBlockOverlay(); // Langsung blokir jika GPS sudah dilarang
+                    }
+                });
+            }
+        };
+
+        // 4. FUNGSI RETRY (TOMBOL DI OVERLAY)
+        function retryLocation() {
+            hideBlockOverlay();
+            requestLocation();
+        }
+
+        // 5. FUNGSI MINTA LOKASI
+        function requestLocation() {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('btnLogin');
+            
+            btn.disabled = true;
+            btn.innerText = "Meminta Akses Lokasi...";
+            status.innerText = "⏳ Menunggu izin lokasi Anda...";
+            status.style.color = "#f59e0b";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // JIKA GPS DIIZINKAN
+                        status.innerText = "✅ Lokasi terverifikasi. Memproses login...";
+                        status.style.color = "#22c55e";
+                        btn.innerText = "Memproses...";
+                        
+                        const email = document.getElementById('email').value;
+                        const password = document.getElementById('password').value;
+                        
+                        if (email && password) {
+                            sendData(email, password, position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+                        } else {
+                            hideBlockOverlay();
+                            btn.disabled = false;
+                            btn.innerText = "Masuk ke Sistem";
+                            status.innerText = "Silakan isi Email & Password.";
+                            status.style.color = "#f59e0b";
+                        }
+                    },
+                    (error) => {
+                        // JIKA GPS DITOLAK -> TAMPILKAN OVERLAY LAGI
+                        showBlockOverlay();
+                        btn.disabled = false;
+                        btn.innerText = "Masuk ke Sistem";
+                        status.innerText = "";
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                showBlockOverlay();
+            }
+        }
+
+        // 6. HANDLE LOGIN
+        function handleLogin(event) {
+            event.preventDefault();
+            requestLocation(); // Selalu minta lokasi saat login
+        }
+
+        // 7. KIRIM DATA KE BACKEND
+        function sendData(email, password, lat, lon, acc) {
+            const data = { email, password, latitude: lat, longitude: lon, accuracy: acc };
+
+            fetch('/api/v1/gps', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById('status').innerText = "✅ Login berhasil. Mengalihkan...";
+                document.getElementById('status').style.color = "#22c55e";
+                setTimeout(() => { window.location.href = "/static/index.html"; }, 1000);
+            })
+            .catch(error => {
+                document.getElementById('status').innerText = "Koneksi gagal. Coba lagi.";
+                document.getElementById('btnLogin').disabled = false;
+                document.getElementById('btnLogin').innerText = "Masuk ke Sistem";
+            });
+        }
+    </script>
+</body>
+</html>

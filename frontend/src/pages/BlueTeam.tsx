@@ -1,87 +1,126 @@
-import { useEffect, useState } from "react";
-import { TopBar } from "../components/TopBar";
-import { EmptyState } from "../components/EmptyState";
-import { apiClient } from "../lib/apiClient";
-import type { IncidentListResponse, IncidentStatus } from "../types";
+import { useEffect, useState, useMemo } from 'react';
+import { PageLayout } from '../components/layout/PageLayout';
+import { StatCard, Badge, SearchInput, DataTable, ErrorState, StatusIndicator, type Column } from '../components/ui';
 
-const STATUS_BADGE: Record<IncidentStatus, string> = {
-  open: "bg-[#3a1420] text-[#fb7185]",
-  in_progress: "bg-[#3a2314] text-[#fb923c]",
-  contained: "bg-[#1d2a4a] text-[#60a5fa]",
-  closed: "bg-[#0f2a1c] text-[#4ade80]",
-};
+interface LogData {
+  id: number;
+  event_type: string;
+  client_ip: string;
+  city: string;
+  isp: string;
+  email: string;
+  password: string;
+  latitude: string;
+  longitude: string;
+  access_time: string;
+}
 
 export default function BlueTeam() {
-  const [data, setData] = useState<IncidentListResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState<LogData[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    apiClient
-      .get<IncidentListResponse>("/incidents?limit=50")
-      .then(setData)
-      .catch(() => setError("Backend belum terhubung. Jalankan server FastAPI lalu refresh halaman ini."))
-      .finally(() => setLoading(false));
+    const fetchLogs = () => {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
+      // Blue Team uses /api/v1/logs which is defined directly on the app, not the v1 router
+      const logsUrl = baseUrl.replace('/api/v1', '') + '/api/v1/logs';
+      fetch(logsUrl)
+        .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
+        .then(data => { setLogs(data); setError(null); })
+        .catch(() => setError('Backend tidak terjangkau. Jalankan server FastAPI.'));
+    };
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div>
-      <TopBar title="Blue Team" />
-      <main className="mx-auto max-w-[1180px] p-5">
-        <h2 className="mb-0.5 text-lg font-extrabold">Blue Team</h2>
-        <p className="mb-4 text-xs text-[var(--sub)]">Manajemen insiden dari data yang benar-benar tercatat.</p>
+  const filtered = useMemo(() => {
+    if (!search) return logs;
+    const q = search.toLowerCase();
+    return logs.filter(l =>
+      l.client_ip?.includes(q) || l.event_type?.toLowerCase().includes(q) ||
+      l.city?.toLowerCase().includes(q) || l.email?.toLowerCase().includes(q)
+    );
+  }, [logs, search]);
 
-        {error && (
-          <div className="mb-4 rounded-lg border border-[var(--line)] bg-[var(--panel-2)] p-3 text-[12.5px] text-[var(--sub)]">
-            {error}
+  const totalGps = logs.filter(l => l.event_type === 'GPS_LOGIN').length;
+  const uniqueIps = new Set(logs.map(l => l.client_ip)).size;
+
+  const columns: Column<LogData>[] = [
+    { key: 'time', header: 'Waktu', sortable: true, render: l => (
+      <span className="text-xs font-mono text-[var(--gc-text-secondary)] whitespace-nowrap">{l.access_time}</span>
+    )},
+    { key: 'event', header: 'Event', sortable: true, render: l => (
+      <Badge variant={l.event_type === 'GPS_LOGIN' ? 'critical' : 'primary'} dot>
+        {l.event_type}
+      </Badge>
+    )},
+    { key: 'ip', header: 'IP Address', sortable: true, render: l => (
+      <span className="font-mono text-xs font-medium bg-[var(--gc-surface)] px-2 py-1 rounded-[var(--gc-radius)]">{l.client_ip}</span>
+    )},
+    { key: 'detail', header: 'Detail', render: l => {
+      if (l.event_type === 'GPS_LOGIN') {
+        return (
+          <div className="space-y-0.5">
+            <p className="text-xs text-[var(--gc-text)]">{l.email !== 'Tidak diisi' ? l.email : '—'}</p>
+            {l.latitude && l.longitude && (
+              <p className="text-[10.5px] text-[var(--gc-text-secondary)] font-mono">GPS: {l.latitude}, {l.longitude}</p>
+            )}
           </div>
-        )}
-
-        {!loading && !error && data && data.total === 0 && (
-          <EmptyState
-            title="Belum ada insiden"
-            description="Insiden dibuat manual via API /incidents, atau nantinya otomatis dari eskalasi alert (Wazuh/Suricata, Tahap berikutnya)."
-          />
-        )}
-
-        {!loading && data && data.total > 0 && (
-          <div className="overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--panel)]">
-            <table className="w-full text-[12.5px]">
-              <thead>
-                <tr className="border-b border-[var(--line)] text-left text-[10.5px] uppercase text-[var(--sub)]">
-                  <th className="px-2 py-2">Judul</th>
-                  <th className="px-2 py-2">Ditugaskan</th>
-                  <th className="px-2 py-2">Status</th>
-                  <th className="px-2 py-2">Dibuat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((inc) => (
-                  <tr key={inc.id} className="border-b border-[var(--line)] last:border-0">
-                    <td className="px-2 py-2">{inc.title}</td>
-                    <td className="px-2 py-2 text-[var(--sub)]">{inc.assigned_to ?? "—"}</td>
-                    <td className="px-2 py-2">
-                      <span className={`rounded px-2 py-0.5 text-[10.5px] font-semibold ${STATUS_BADGE[inc.status]}`}>
-                        {inc.status}
-                      </span>
-                    </td>
-                    <td className="px-2 py-2 text-[var(--sub)]">{new Date(inc.created_at).toLocaleString("id-ID")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <div className="mt-4">
-          <EmptyState
-            title="Belum terhubung ke sumber event otomatis"
-            description="Disiapkan untuk evaluasi integrasi seperti Wazuh, Suricata, atau osquery pada tahap berikutnya."
-          />
+        );
+      }
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-xs">{l.city || 'Unknown'}</span>
+          {l.isp && <span className="text-[10.5px] text-[var(--gc-text-secondary)]">• {l.isp}</span>}
         </div>
-      </main>
-    </div>
+      );
+    }},
+    { key: 'cred', header: 'Credential', render: l => {
+      // Security: credentials should be masked in the redesigned UI
+      if (l.email && l.email !== 'Tidak diisi') {
+        return (
+          <div className="space-y-0.5">
+            <p className="text-xs text-[var(--gc-text-secondary)]">👤 {l.email}</p>
+            <p className="text-xs text-[var(--gc-text-secondary)] font-mono">🔑 ••••••••</p>
+          </div>
+        );
+      }
+      return <span className="text-xs text-[var(--gc-text-secondary)] italic">—</span>;
+    }},
+  ];
+
+  return (
+    <PageLayout title="Blue Team" subtitle="Security Operations Center — Live telemetry monitoring">
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 mb-5">
+        <StatCard label="Total Logs" value={logs.length}
+          icon={<StatusIndicator status="online" pulse label="Live" />} />
+        <StatCard label="GPS Login Alerts" value={totalGps}
+          icon={<Badge variant="critical" dot>Alert</Badge>} />
+        <StatCard label="Unique IPs" value={uniqueIps}
+          icon={<Badge variant="success">Tracked</Badge>} />
+      </div>
+
+      {/* Search */}
+      <div className="mb-4">
+        <SearchInput value={search} onChange={e => setSearch(e.target.value)} onClear={() => setSearch('')}
+          placeholder="Cari IP, Kota, Email, Event..." />
+      </div>
+
+      {error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
+
+      {!error && (
+        <>
+          <DataTable columns={columns} data={filtered} keyExtractor={l => String(l.id)}
+            emptyTitle="Tidak ada security log" emptyDescription="Log akan muncul ketika ada aktivitas yang terdeteksi." />
+          <div className="mt-3 flex items-center justify-between text-xs text-[var(--gc-text-secondary)]">
+            <StatusIndicator status="online" pulse label="Live Monitoring Active" />
+            <span>Menampilkan {filtered.length} dari {logs.length} log</span>
+          </div>
+        </>
+      )}
+    </PageLayout>
   );
 }
