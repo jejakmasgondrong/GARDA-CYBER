@@ -26,7 +26,9 @@ di formulir kalau ternyata kategorinya berbeda.
 | 5 | Slide penjelasan | ✅ PPTX 11 slide | `submission/GARDA-CYBER-slide-penjelasan.pptx` |
 
 Tidak ada .exe: rulebook tidak mewajibkan executable; link download repo +
-Docker Compose sudah memenuhi syarat link karya.
+Docker Compose sudah memenuhi syarat link karya. Juri di Windows tanpa Docker
+bisa pakai `setup.bat` (double-click) — instal dependensi + jalankan backend
++ frontend otomatis.
 
 ## Urutan upload di platform
 

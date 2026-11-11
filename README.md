@@ -14,6 +14,8 @@ sumber data nyata menampilkan empty state ("belum ada data"), bukan metrik rekaa
 - Node.js 20+ dan npm
 - Docker Desktop (opsional, untuk deployment lokal via Compose)
 - Instruksi di bawah ditulis untuk **Windows PowerShell**
+- **Cara cepat (Windows):** double-click `setup.bat` — cek Python + Node,
+  instal dependensi, lalu jalankan backend + frontend otomatis
 
 ## 2. Struktur Proyek
 
