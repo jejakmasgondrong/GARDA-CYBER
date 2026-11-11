@@ -1,0 +1,93 @@
+{
+  "title": "GARDA-CYBER",
+  "subtitle": "Platform Operasi Keamanan Siber Modular",
+  "slides": [
+    {
+      "title": "Masalah",
+      "bullets": [
+        "Operasi keamanan tersebar di banyak tool: satu tool untuk scan, satu untuk asset, satu untuk insiden.",
+        "Finding dan insiden tidak terhubung ke aset, sehingga prioritas perbaikan sulit diputuskan.",
+        "Integrasi tool keamanan membutuhkan instalasi manual satu per satu, tanpa status yang jujur."
+      ]
+    },
+    {
+      "title": "Solusi: Satu Platform Modular",
+      "bullets": [
+        "Satu dashboard untuk operasi blue team maupun red team.",
+        "Aset, temuan, dan insiden terhubung dalam satu basis data.",
+        "Integrasi registry: status tiap tool jujur (implemented vs configured).",
+        "Tidak ada data palsu: workspace kosong menampilkan empty state, bukan metrik rekaan."
+      ]
+    },
+    {
+      "title": "Blue Team: Insiden & Temuan",
+      "bullets": [
+        "Manajemen insiden: CRUD lengkap dengan tabel dan empty state nyata.",
+        "Findings dari semua sumber dengan deduplikasi kunci agar tidak ganda.",
+        "Audit log otomatis tercatat setiap create/update finding dan insiden."
+      ]
+    },
+    {
+      "title": "Intelijen: IP & Attack Surface",
+      "bullets": [
+        "IP Intelligence: klasifikasi IPv4/IPv6 lengkap (private, reserved, loopback, multicast, dst).",
+        "Scope enforcement di backend, bukan hanya di frontend.",
+        "Attack Surface: OSINT domain (DNS + TLS lookup) dengan penegakan anti-SSRF di backend.",
+        "Riwayat lookup tersimpan di basis data dengan pagination."
+      ]
+    },
+    {
+      "title": "Red Team: Tool Catalog & Integrasi Nyata",
+      "bullets": [
+        "Katalog tool dari registry di halaman Red Team.",
+        "6 tool executable dari halaman Integrasi: nmap, nuclei, amass, kartika_load, kartika_sqli_probe, kartika_wa_phish.",
+        "Eksekusi lewat job API: POST /api/v1/jobs, status dilacak sampai completed.",
+        "GitHub Exposure Monitor: scan repo langsung dari UI."
+      ]
+    },
+    {
+      "title": "Arsitektur",
+      "bullets": [
+        "Backend: FastAPI + SQLAlchemy + SQLite (file tunggal, portabel).",
+        "Frontend: React + Vite + Tailwind, API client terpusat.",
+        "Adapter registry: satu daftar pusat untuk adapter dan provider.",
+        "Deployment: Docker Compose (backend + frontend), instruksi Windows PowerShell di README."
+      ]
+    },
+    {
+      "title": "Bukti Fungsional",
+      "bullets": [
+        "114 test backend passed (pytest).",
+        "7 dari 15 integrasi aktif, 6 executable terbukti jalan.",
+        "Job nyata: kartika_load 8 request di 9,5 rps, selesai dan tercatat di audit log.",
+        "Seed demo hidup: 7 aset, 8 findings, 4 insiden."
+      ]
+    },
+    {
+      "title": "Batas yang Diakui (Roadmap)",
+      "bullets": [
+        "Autentikasi dan manajemen role belum dibangun.",
+        "Adapter OSINT dan GitHub Exposure belum berisi kode (terdaftar di registry).",
+        "Hasil run Kartika belum otomatis membuat Finding.",
+        "Halaman Laporan masih empty state, menunggu data finding/insiden lebih banyak."
+      ]
+    },
+    {
+      "title": "Cara Menjalankan",
+      "bullets": [
+        "Clone repo, jalankan backend (uvicorn port 8000) lalu frontend (vite port 5173).",
+        "Atau satu perintah: docker compose up.",
+        "Isi backend/.env dari .env.example; tanpa data palsu di mana pun.",
+        "Test: python -m pytest -q di folder backend."
+      ]
+    },
+    {
+      "title": "Penutup",
+      "bullets": [
+        "GARDA-CYBER: satu platform untuk operasi keamanan siber yang jujur datanya.",
+        "Repo publik: github.com/jejakmasgondrong/GARDA-CYBER",
+        "Dokumentasi lengkap: README + 9 dokumen di folder docs/."
+      ]
+    }
+  ]
+}
