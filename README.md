@@ -16,6 +16,8 @@ sumber data nyata menampilkan empty state ("belum ada data"), bukan metrik rekaa
 - Instruksi di bawah ditulis untuk **Windows PowerShell**
 - **Cara cepat (Windows):** double-click `setup.bat` — cek Python + Node,
   instal dependensi, lalu jalankan backend + frontend otomatis
+- **Cara cepat (Linux/macOS):** `bash setup.sh` — perilaku sama seperti
+  `setup.bat`. Port bisa diubah: `bash setup.sh 8001 5174`
 
 ## 2. Struktur Proyek
 

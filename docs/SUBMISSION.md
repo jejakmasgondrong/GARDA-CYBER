@@ -28,7 +28,8 @@ di formulir kalau ternyata kategorinya berbeda.
 Tidak ada .exe: rulebook tidak mewajibkan executable; link download repo +
 Docker Compose sudah memenuhi syarat link karya. Juri di Windows tanpa Docker
 bisa pakai `setup.bat` (double-click) — instal dependensi + jalankan backend
-+ frontend otomatis.
++ frontend otomatis. Di Linux/macOS tinggal `bash setup.sh` (perilaku sama,
+port bisa diubah: `bash setup.sh 8001 5174`).
 
 ## Urutan upload di platform
 
