@@ -44,9 +44,16 @@ class BaseIntegrationAdapter(ABC):
         raise NotImplementedError
 
     def is_installed(self) -> bool:
-        """Default: jika adapter mendefinisikan binary_name, cek PATH sungguhan via shutil.which."""
+        """Default: jika adapter mendefinisikan binary_name, cek PATH sungguhan via shutil.which.
+
+        binary_name=None berarti tool berbasis API/HTTP/stdlib (tidak ada binary CLI
+        lokal yang perlu dipasang) -> "installed" tidak relevan, kembalikan True.
+        Gate "siap jalan" tetap ditentukan is_executable(): implemented AND
+        installed AND configured, jadi tool API yang belum configured tidak
+        pernah jadi executable meski installed=True.
+        """
         if self.info.binary_name is None:
-            return False  # tool berbasis API: "installed" tidak relevan, default aman = False
+            return True  # tool berbasis API/stdlib: tidak ada binary yang perlu dicek
         return shutil.which(self.info.binary_name) is not None
 
     def is_executable(self) -> bool:
