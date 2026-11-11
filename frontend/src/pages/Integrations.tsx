@@ -100,11 +100,28 @@ export default function Integrations() {
           const l = getLabel(t);
           return (
             <div key={t.tool_id} className="rounded-[var(--gc-radius-lg)] border border-[var(--gc-border)] bg-[var(--gc-card)] p-4 transition-all hover:border-[var(--gc-primary)]/30">
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between gap-2 mb-2">
                 <h4 className="text-sm font-semibold text-[var(--gc-text)]">{t.display_name}</h4>
-                <Badge variant={l.variant} dot>{l.text}</Badge>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {t.demo_mode && <Badge variant="warning" dot>Mode Demo</Badge>}
+                  <Badge variant={l.variant} dot>{l.text}</Badge>
+                </div>
               </div>
               <p className="text-xs text-[var(--gc-text-secondary)] mb-3 leading-relaxed">{t.capability_summary}</p>
+              {t.demo_mode && (
+                <p className="mb-2 rounded-[var(--gc-radius)] border border-[var(--gc-border)] bg-[var(--gc-surface)] px-2.5 py-2 text-[10.5px] leading-relaxed text-[var(--gc-text-secondary)]">
+                  Mode demo: API key penyedia belum diset, jadi lookup dijawab
+                  provider contoh — bukan data reputasi nyata.
+                </p>
+              )}
+              {t.tool_id === 'github_exposure' && (
+                <p className="mb-2 rounded-[var(--gc-radius)] border border-[var(--gc-border)] bg-[var(--gc-surface)] px-2.5 py-2 text-[10.5px] leading-relaxed text-[var(--gc-text-secondary)]">
+                  Cakupan: hanya repo yang terdaftar di{' '}
+                  <code className="rounded bg-[var(--gc-card)] px-1 py-0.5 text-[10px]">GITHUB_EXPOSURE_ALLOWED_REPOS</code>{' '}
+                  yang diperiksa. Scan berjalan sinkron (~2 menit untuk repo besar) —
+                  job menunggu sampai selesai.
+                </p>
+              )}
               {t.required_env_vars.length > 0 && (
                 <div className="mb-2">
                   <p className="text-[10.5px] uppercase text-[var(--gc-text-secondary)] mb-1">Variabel Wajib</p>

@@ -15,6 +15,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from app.integrations.adapters.base import ExecutionResult
 from app.integrations.registry import get_adapter_by_id
 from app.models.job import Job, JobStatus
 from app.repositories.asset import AssetRepository
@@ -81,7 +82,15 @@ class JobManagerService:
                 reasons.append("konfigurasi (.env) belum lengkap")
             return self._fail(job, f"Tidak bisa eksekusi: {', '.join(reasons)}.")
 
-        result = adapter.execute(asset.identifier, data.parameters)
+        try:
+            result = adapter.execute(asset.identifier, data.parameters)
+        except Exception as exc:
+            # Adapter ketiga TIDAK BOLEH membuat endpoint job 500 dan job
+            # nyangkut "running" selamanya -- rangkum jadi job FAILED yang jujur.
+            result = ExecutionResult(
+                success=False,
+                summary=f"Adapter melempar {exc.__class__.__name__}: {exc}",
+            )
 
         job.completed_at = datetime.utcnow()
         job.output_summary = result.summary

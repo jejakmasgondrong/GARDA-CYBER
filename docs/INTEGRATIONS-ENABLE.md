@@ -1,13 +1,13 @@
 # Mengaktifkan integrasi GARDA CYBER di mesin ini
 
-Tanggal: 2026-11-06. Semua langkah di bawah **tanpa sudo** — tidak ada perubahan
-pada sistem, semuanya masuk ke `~/.local` dan `~/go/bin`.
+Tanggal: 2026-11-06, diperbarui 2026-11-11. Semua langkah di bawah **tanpa sudo**
+— tidak ada perubahan pada sistem, semuanya masuk ke `~/.local` dan `~/go/bin`.
 
 ## Hasilnya
 
 | Sebelum | Sesudah |
 |---|---|
-| 4 dari 15 aktif (3 Kartika + OSINT) | **7 dari 15 aktif, 6 bisa dijalankan** |
+| 4 dari 15 aktif (3 Kartika + OSINT) | **9 dari 15 aktif, 9 bisa dijalankan** |
 
 Tool yang sekarang benar-benar jalan (diverifikasi dengan job nyata, bukan cuma
 status "configured"):
@@ -20,6 +20,13 @@ status "configured"):
 | `kartika_load` | sustained 3 dtk, 8 req, target API sendiri | completed, 9,5 rps, p50 190 ms, temuan `RATE_LIMIT_MISSING` |
 | `kartika_sqli_probe` | parameter `id` di API sendiri | completed, `TANPA_SINYAL` skor 0/100 |
 | `kartika_wa_phish` | analisis teks (offline) | completed, skor 6 = TINGGI |
+| `github_exposure` | scan repo `jejakmasgondrong/GARDA-CYBER` | completed, 200 file diperiksa, 0 finding baru (dedup jalan) |
+| `ip_reputation` | lookup `8.8.8.8` | completed, klasifikasi `public`, **dijawab provider demo** (lihat § Mode demo) |
+
+**Batas waktu yang diakui:** `github_exposure` berjalan sinkron di job manager
+(enggak ada antrian/worker). Scan repo besar memakan waktu menit — job
+`jejakmasgondrong/GARDA-CYBER` butuh ~2 menit. Ini keterbatasan desain yang
+sengaja dipakai, didokumentasikan di sini, bukan ditutup-tutupi.
 
 ## Cara mengulang di mesin lain
 
@@ -58,14 +65,35 @@ tanpa itu statusnya "belum dikonfigurasi" walau binary ada di PATH.
 ("belum diimplementasikan"). Jadi keempatnya pajangan, bukan integrasi.
 Untuk mengaktifkan perlu implementasi adapter + sumber data nyata.
 
-Butuh kredensial/infrastruktur (bukan binary):
+Butuh server/daemon eksternal (bukan binary, bukan sekadar key):
 
 | Tool | Yang dibutuhkan |
 |---|---|
 | `owasp_zap` | ZAP daemon + `OWASP_ZAP_URL` + `OWASP_ZAP_API_KEY` |
 | `wazuh` | server Wazuh + URL + user + password |
-| `github_exposure` | `GITHUB_TOKEN` + `GITHUB_EXPOSURE_ALLOWED_REPOS` |
-| `ip_reputation` | `ABUSEIPDB_API_KEY` |
+
+Total: 9 jalan + 4 pajangan tanpa kode + 2 butuh server eksternal = 15.
+
+## Mode demo (ip_reputation)
+
+`ip_reputation` jalan tanpa `ABUSEIPDB_API_KEY` karena ada fallback provider
+demo. Ini **bukan** reputasi nyata — sengaja dilabel di mana pun muncul:
+
+- Job summary selalu membawa kalimat: *"karena keterbatasan waktu dan sumber
+  daya, maka fungsi tidak sampai berjalan karena butuh api berbayar"* plus
+  tanda `[DATA DEMO -- bukan reputasi nyata]`.
+- Endpoint `/integrations` mengirim `demo_mode: true` untuk tool ini, dan
+  halaman Integrations menampilkan badge "Mode Demo" + penjelasan.
+
+Kalau `ABUSEIPDB_API_KEY` diisi nanti, `is_configured()` tetap `true`, provider
+demo otomatis tidak dipakai, dan badge hilang.
+
+## Yang aktif tapi punya batas jujur
+
+| Tool | Batasnya |
+|---|---|
+| `github_exposure` | hanya repo yang terdaftar di `GITHUB_EXPOSURE_ALLOWED_REPOS` yang diperiksa; scan sinkron bisa menit untuk repo besar |
+| `ip_reputation` | tanpa AbuseIPDB key, jawabannya data demo (lihat § Mode demo) |
 
 ## Jebakan yang ketemu saat mengerjakan ini
 

@@ -38,6 +38,9 @@ class Settings(BaseSettings):
 
     # --- AbuseIPDB ---
     ABUSEIPDB_API_KEY: str = ""
+    # Aktifkan provider demo (data contoh, bukan reputasi nyata) ketika
+    # AbuseIPDB key tidak diisi. Default False.
+    DEMO_PROVIDER_ENABLED: bool = False
 
     # --- Integrasi Tahap 2 (status "not_configured" sampai diisi) ---
     NMAP_BINARY: str = ""

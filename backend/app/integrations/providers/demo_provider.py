@@ -8,9 +8,9 @@ Provider sungguhan (mis. layanan reputasi IP berbayar/gratis) ditambahkan
 dengan mengimplementasikan IpReputationProvider yang sama, berisi HTTP call
 nyata + timeout + penanganan error -- bukan mengubah file ini.
 """
-import os
 from datetime import datetime, timezone
 
+from app.core.config import get_settings
 from app.integrations.providers.base import IpReputationProvider, ProviderResult
 from app.models.ip_lookup import ProviderResultStatus
 
@@ -21,7 +21,7 @@ class DemoIpProvider(IpReputationProvider):
     required_env_vars = ["DEMO_PROVIDER_ENABLED"]
 
     def is_configured(self) -> bool:
-        return os.getenv("DEMO_PROVIDER_ENABLED", "").lower() == "true"
+        return get_settings().DEMO_PROVIDER_ENABLED
 
     def lookup(self, ip_address: str, timeout_seconds: float = 5.0) -> ProviderResult:
         if not self.is_configured():

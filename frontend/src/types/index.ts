@@ -24,6 +24,8 @@ export interface IntegrationStatus {
   // Backend selalu mengirim dua field ini (lihat BaseIntegrationAdapter.status()).
   installed?: boolean;
   executable?: boolean;
+  // Hanya dikirim adapter yang menjawab dengan data contoh (bukan API nyata).
+  demo_mode?: boolean;
 }
 
 export interface HealthResponse {
