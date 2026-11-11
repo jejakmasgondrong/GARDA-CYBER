@@ -78,6 +78,19 @@ echo "[3/4] Instal dependensi frontend (npm install, bisa beberapa menit)..."
 if [ ! -f frontend/.env.local ]; then
   cp frontend/.env.example frontend/.env.local
 fi
+# Pastikan URL backend di frontend cocok dengan port yang dipakai setup.sh.
+# Baris VITE_API_BASE_URL localhost diperbarui otomatis; kalau sudah diarahkan
+# ke domain lain (misal production), biarkan tapi peringatkan.
+if grep -q '^VITE_API_BASE_URL=http://localhost:' frontend/.env.local; then
+  env_tmp="$(mktemp)"
+  awk -v url="VITE_API_BASE_URL=http://localhost:$BACKEND_PORT/api/v1" \
+    '{ if ($0 ~ /^VITE_API_BASE_URL=/) print url; else print $0 }' \
+    frontend/.env.local >"$env_tmp" && mv "$env_tmp" frontend/.env.local
+  echo "[INFO] frontend/.env.local mengarah ke backend di port $BACKEND_PORT."
+else
+  echo "[WARN] frontend/.env.local punya VITE_API_BASE_URL non-localhost -- tidak diubah."
+  echo "       Pastikan URL itu menunjuk ke backend di port $BACKEND_PORT."
+fi
 
 echo "[4/4] Menjalankan server..."
 
