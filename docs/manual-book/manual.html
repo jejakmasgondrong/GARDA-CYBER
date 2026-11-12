@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Manual Book GARDA CYBER v0.5.1</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.0cm 1.8cm 2.2cm 1.8cm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  /* ---------- COVER ---------- */
+  .cover {
+    height: 24.5cm;
+    background: #14365d;
+    color: #ffffff;
+    padding: 3.2cm 2.4cm 2.0cm 2.4cm;
+    page-break-after: always;
+  }
+  .cover .brand {
+    font-size: 13pt;
+    letter-spacing: 6px;
+    color: #7fd1c8;
+    font-weight: bold;
+    border-bottom: 3px solid #14b8a6;
+    padding-bottom: 10px;
+    display: inline-block;
+  }
+  .cover h1 {
+    font-size: 34pt;
+    line-height: 1.15;
+    margin: 2.6cm 0 0.4cm 0;
+    font-weight: bold;
+  }
+  .cover .subtitle {
+    font-size: 13pt;
+    color: #d7e3f0;
+    line-height: 1.6;
+    max-width: 14cm;
+  }
+  .cover .version-box {
+    margin-top: 3.4cm;
+    border-left: 5px solid #14b8a6;
+    padding: 10px 16px;
+    background: #0f2a47;
+    font-size: 11pt;
+    max-width: 12cm;
+  }
+  .cover .version-box b { color: #7fd1c8; }
+  .cover .cover-foot {
+    margin-top: 2.2cm;
+    font-size: 9.5pt;
+    color: #9db4cc;
+  }
+  /* ---------- FRONT MATTER ---------- */
+  h1.bab {
+    font-size: 19pt;
+    color: #14365d;
+    border-bottom: 3px solid #14b8a6;
+    padding-bottom: 8px;
+    page-break-before: always;
+    margin: 0 0 14px 0;
+  }
+  h1.front {
+    font-size: 19pt;
+    color: #14365d;
+    border-bottom: 3px solid #14b8a6;
+    padding-bottom: 8px;
+    page-break-before: always;
+    margin: 0 0 14px 0;
+  }
+  h2 {
+    font-size: 13.5pt;
+    color: #14365d;
+    margin: 20px 0 8px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11.5pt;
+    color: #0e7490;
+    margin: 14px 0 6px 0;
+    page-break-after: avoid;
+  }
+  p { margin: 7px 0; text-align: justify; }
+  ul, ol { margin: 6px 0 10px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  /* ---------- BOX ---------- */
+  .desc-box {
+    background: #eef4fb;
+    border-left: 5px solid #14365d;
+    padding: 10px 14px;
+    margin: 10px 0 14px 0;
+  }
+  .desc-box .lbl { font-weight: bold; color: #14365d; }
+  .goal-box {
+    background: #e9f7f5;
+    border-left: 5px solid #14b8a6;
+    padding: 10px 14px;
+    margin: 10px 0 14px 0;
+  }
+  .goal-box .lbl { font-weight: bold; color: #0e7490; }
+  .quote-box {
+    background: #fff8e1;
+    border-left: 5px solid #d97706;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-style: italic;
+  }
+  .honest-box {
+    background: #fdeeee;
+    border-left: 5px solid #b91c1c;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .honest-box .lbl { font-weight: bold; color: #b91c1c; }
+  code, .mono {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 9pt;
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  pre {
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 8.5pt;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #14365d;
+    padding: 10px 12px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  /* ---------- TABLE ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 6px 0;
+    font-size: 9pt;
+  }
+  th {
+    background: #14365d;
+    color: #ffffff;
+    text-align: left;
+    padding: 5px 7px;
+    border: 1px solid #14365d;
+  }
+  td {
+    border: 1px solid #b6c4d4;
+    padding: 4px 7px;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f4f7fb; }
+  .table-note { font-size: 8.5pt; color: #555; margin: 2px 0 12px 0; }
+  /* ---------- FIGURE ---------- */
+  figure {
+    margin: 12px 0;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  figure img {
+    border: 1px solid #cbd5e1;
+    max-width: 100%;
+  }
+  figure img.seg { width: 82%; }
+  figcaption {
+    font-size: 8.5pt;
+    color: #444;
+    font-style: italic;
+    margin-top: 4px;
+    text-align: center;
+  }
+  /* ---------- TOC ---------- */
+  .toc-row {
+    display: flex;
+    align-items: baseline;
+    margin: 4px 0;
+    font-size: 10pt;
+  }
+  .toc-row a.title {
+    text-decoration: none;
+    color: #1a1a1a;
+    white-space: nowrap;
+  }
+  .toc-row .dots {
+    flex: 1;
+    border-bottom: 1px dotted #666;
+    margin: 0 5px;
+    min-width: 30px;
+  }
+  .toc-row a.pg {
+    text-decoration: none;
+    color: #14365d;
+    font-weight: bold;
+  }
+  .toc-row a.pg::after {
+    content: target-counter(attr(href url), page);
+  }
+  .toc-row.sub { margin-left: 20px; font-size: 9.5pt; }
+  .toc-row.bab { font-weight: bold; margin-top: 8px; }
+  /* ---------- MISC ---------- */
+  .small { font-size: 9pt; color: #444; }
+  .keep { page-break-inside: avoid; }
+  .pb { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<div class="cover">
+  <div class="brand">GARDA&nbsp;CYBER</div>
+  <h1>Manual Book<br>GARDA CYBER</h1>
+  <div class="subtitle">
+    Platform Operasi Keamanan — Panduan Instalasi, Pengoperasian,
+    dan Batas Sistem
+  </div>
+  <div class="version-box">
+    <b>Versi dokumen:</b> v0.5.1<br>
+    <b>Versi perangkat lunak:</b> GARDA CYBER v0.5.1<br>
+    <b>Tanggal:</b> November 2026
+  </div>
+  <div class="cover-foot">
+    Dokumen ini disusun dari kondisi nyata perangkat lunak (apa yang benar-benar
+    berjalan, apa yang sengaja dikunci, dan apa yang belum dibangun).
+    Bukan dokumen rancangan.
+  </div>
+</div>
+
+<!-- ================= KATA PENGANTAR ================= -->
+<h1 class="front" id="kata">Kata Pengantar</h1>
+<p>
+  Buku ini adalah panduan praktis untuk <b>GARDA CYBER</b>, sebuah platform
+  operasi keamanan berbasis web yang menyatukan inventaris aset, pemantauan
+  serangan permukaan, intelijen alamat IP, pengelolaan temuan kerentanan,
+  penanganan insiden, dan eksekusi alat keamanan dalam satu tempat.
+</p>
+<p>
+  GARDA CYBER dibangun sebagai aplikasi web modern: bagian belakang ditulis
+  dengan Python (FastAPI) dan SQLite, bagian depan dengan React, dan
+  alat-alat keamanan dijalankan melalui integrasi yang terdaftar di satu
+  registri pusat. Buku ini menemani Anda mulai dari instalasi pertama kali
+  sampai pengoperasian harian, lengkap dengan hasil pengujian yang benar-benar
+  dijalankan dan daftar batas sistem yang belum tersedia.
+</p>
+<p>
+  Sikap jujur adalah prinsip pertama dokumen ini. Bila suatu fitur masih
+  terkunci, buku ini menampilkan kalimat terkuncinya apa adanya. Bila suatu
+  jawaban berasal dari penyedia contoh (bukan data nyata), buku ini menuliskan
+  labelnya apa adanya. Bila suatu janji belum ditepati, buku ini menuliskannya
+  di bab batas. Anda tidak perlu menebak-nebak.
+</p>
+<p>
+  Buku ini disusun untuk versi perangkat lunak <b>v0.5.1</b>. Bila Anda
+  memakai versi lain, periksa dulu nomor versi pada lencana di bilah samping
+  aplikasi, lalu sesuaikan nomor halaman dan tangkapan layar pada buku ini.
+</p>
+<p style="margin-top:26px">Penyusun,<br>November 2026</p>
+
+<!-- ================= DAFTAR ISI ================= -->
+<h1 class="front" id="dftr-isi">Daftar Isi</h1>
+<div class="toc-row bab"><a class="title" href="#kata">Kata Pengantar</a><span class="dots"></span><a class="pg" href="#kata"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab1">BAB I&nbsp;&nbsp;Pendahuluan</a><span class="dots"></span><a class="pg" href="#bab1"></a></div>
+<div class="toc-row sub"><a class="title" href="#s11">1.1&nbsp;&nbsp;Latar Belakang</a><span class="dots"></span><a class="pg" href="#s11"></a></div>
+<div class="toc-row sub"><a class="title" href="#s12">1.2&nbsp;&nbsp;Ruang Lingkup Buku</a><span class="dots"></span><a class="pg" href="#s12"></a></div>
+<div class="toc-row sub"><a class="title" href="#s13">1.3&nbsp;&nbsp;Yang Tidak Dibahas</a><span class="dots"></span><a class="pg" href="#s13"></a></div>
+<div class="toc-row sub"><a class="title" href="#s14">1.4&nbsp;&nbsp;Konvensi Penulisan</a><span class="dots"></span><a class="pg" href="#s14"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab2">BAB II&nbsp;&nbsp;Instalasi dan Persiapan</a><span class="dots"></span><a class="pg" href="#bab2"></a></div>
+<div class="toc-row sub"><a class="title" href="#s21">2.1&nbsp;&nbsp;Persyaratan Sistem</a><span class="dots"></span><a class="pg" href="#s21"></a></div>
+<div class="toc-row sub"><a class="title" href="#s22">2.2&nbsp;&nbsp;Instalasi Satu Klik (setup.sh)</a><span class="dots"></span><a class="pg" href="#s22"></a></div>
+<div class="toc-row sub"><a class="title" href="#s23">2.3&nbsp;&nbsp;Instalasi di Windows (setup.bat)</a><span class="dots"></span><a class="pg" href="#s23"></a></div>
+<div class="toc-row sub"><a class="title" href="#s24">2.4&nbsp;&nbsp;Pengisian Data Demo Otomatis</a><span class="dots"></span><a class="pg" href="#s24"></a></div>
+<div class="toc-row sub"><a class="title" href="#s25">2.5&nbsp;&nbsp;Peta Port dan Alamat</a><span class="dots"></span><a class="pg" href="#s25"></a></div>
+<div class="toc-row sub"><a class="title" href="#s26">2.6&nbsp;&nbsp;Berhenti, Menjalankan Ulang, dan Port Kustom</a><span class="dots"></span><a class="pg" href="#s26"></a></div>
+<div class="toc-row sub"><a class="title" href="#s27">2.7&nbsp;&nbsp;Variabel Lingkungan</a><span class="dots"></span><a class="pg" href="#s27"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab3">BAB III&nbsp;&nbsp;Dasbor dan Manajemen Aset</a><span class="dots"></span><a class="pg" href="#bab3"></a></div>
+<div class="toc-row sub"><a class="title" href="#s31">3.1&nbsp;&nbsp;Dasbor</a><span class="dots"></span><a class="pg" href="#s31"></a></div>
+<div class="toc-row sub"><a class="title" href="#s32">3.2&nbsp;&nbsp;Asset Inventory</a><span class="dots"></span><a class="pg" href="#s32"></a></div>
+<div class="toc-row sub"><a class="title" href="#s33">3.3&nbsp;&nbsp;Attack Surface (OSINT Domain)</a><span class="dots"></span><a class="pg" href="#s33"></a></div>
+<div class="toc-row sub"><a class="title" href="#s34">3.4&nbsp;&nbsp;IP Intelligence</a><span class="dots"></span><a class="pg" href="#s34"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab4">BAB IV&nbsp;&nbsp;Operasi Keamanan</a><span class="dots"></span><a class="pg" href="#bab4"></a></div>
+<div class="toc-row sub"><a class="title" href="#s41">4.1&nbsp;&nbsp;Vulnerability Management</a><span class="dots"></span><a class="pg" href="#s41"></a></div>
+<div class="toc-row sub"><a class="title" href="#s42">4.2&nbsp;&nbsp;Incident Management</a><span class="dots"></span><a class="pg" href="#s42"></a></div>
+<div class="toc-row sub"><a class="title" href="#s43">4.3&nbsp;&nbsp;Blue Team</a><span class="dots"></span><a class="pg" href="#s43"></a></div>
+<div class="toc-row sub"><a class="title" href="#s44">4.4&nbsp;&nbsp;Red Team</a><span class="dots"></span><a class="pg" href="#s44"></a></div>
+<div class="toc-row sub"><a class="title" href="#s45">4.5&nbsp;&nbsp;Job Manager</a><span class="dots"></span><a class="pg" href="#s45"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab5">BAB V&nbsp;&nbsp;Sistem dan Integrasi</a><span class="dots"></span><a class="pg" href="#bab5"></a></div>
+<div class="toc-row sub"><a class="title" href="#s51">5.1&nbsp;&nbsp;Halaman Integrations</a><span class="dots"></span><a class="pg" href="#s51"></a></div>
+<div class="toc-row sub"><a class="title" href="#s52">5.2&nbsp;&nbsp;Sembilan Alat yang Jalan Nyata</a><span class="dots"></span><a class="pg" href="#s52"></a></div>
+<div class="toc-row sub"><a class="title" href="#s53">5.3&nbsp;&nbsp;Mode Demo (ip_reputation)</a><span class="dots"></span><a class="pg" href="#s53"></a></div>
+<div class="toc-row sub"><a class="title" href="#s54">5.4&nbsp;&nbsp;Lima Alat Terkunci</a><span class="dots"></span><a class="pg" href="#s54"></a></div>
+<div class="toc-row sub"><a class="title" href="#s55">5.5&nbsp;&nbsp;Satu Alat Pajangan (sigma)</a><span class="dots"></span><a class="pg" href="#s55"></a></div>
+<div class="toc-row sub"><a class="title" href="#s56">5.6&nbsp;&nbsp;Reports</a><span class="dots"></span><a class="pg" href="#s56"></a></div>
+<div class="toc-row sub"><a class="title" href="#s57">5.7&nbsp;&nbsp;Audit Logs</a><span class="dots"></span><a class="pg" href="#s57"></a></div>
+<div class="toc-row sub"><a class="title" href="#s58">5.8&nbsp;&nbsp;Settings</a><span class="dots"></span><a class="pg" href="#s58"></a></div>
+<div class="toc-row bab"><a class="title" href="#bab6">BAB VI&nbsp;&nbsp;Pengujian dan Batas Keamanan</a><span class="dots"></span><a class="pg" href="#bab6"></a></div>
+<div class="toc-row sub"><a class="title" href="#s61">6.1&nbsp;&nbsp;Hasil Pengujian</a><span class="dots"></span><a class="pg" href="#s61"></a></div>
+<div class="toc-row sub"><a class="title" href="#s62">6.2&nbsp;&nbsp;Gate Keamanan yang Diuji</a><span class="dots"></span><a class="pg" href="#s62"></a></div>
+<div class="toc-row sub"><a class="title" href="#s63">6.3&nbsp;&nbsp;Batas Jujur Sistem Saat Ini</a><span class="dots"></span><a class="pg" href="#s63"></a></div>
+<div class="toc-row sub"><a class="title" href="#s64">6.4&nbsp;&nbsp;Troubleshooting</a><span class="dots"></span><a class="pg" href="#s64"></a></div>
+<div class="toc-row bab"><a class="title" href="#pustaka">Daftar Pustaka</a><span class="dots"></span><a class="pg" href="#pustaka"></a></div>
+<div class="toc-row bab"><a class="title" href="#lampA">Lampiran A — Variabel Lingkungan</a><span class="dots"></span><a class="pg" href="#lampA"></a></div>
+<div class="toc-row bab"><a class="title" href="#lampB">Lampiran B — Perintah Dasar</a><span class="dots"></span><a class="pg" href="#lampB"></a></div>
+<div class="toc-row bab"><a class="title" href="#lampC">Lampiran C — Kalimat Terkunci dan Label Demo</a><span class="dots"></span><a class="pg" href="#lampC"></a></div>
+
+<!-- ================= DAFTAR GAMBAR ================= -->
+<h1 class="front" id="dftr-gambar">Daftar Gambar</h1>
+<div class="toc-row"><a class="title" href="#gbr1">Gambar 1. Dasbor — kartu indikator dan grafik (segmen 1)</a><span class="dots"></span><a class="pg" href="#gbr1"></a></div>
+<div class="toc-row"><a class="title" href="#gbr2">Gambar 2. Dasbor — daftar insiden dan tugas (segmen 2)</a><span class="dots"></span><a class="pg" href="#gbr2"></a></div>
+<div class="toc-row"><a class="title" href="#gbr3">Gambar 3. Asset Inventory</a><span class="dots"></span><a class="pg" href="#gbr3"></a></div>
+<div class="toc-row"><a class="title" href="#gbr4">Gambar 4. Attack Surface</a><span class="dots"></span><a class="pg" href="#gbr4"></a></div>
+<div class="toc-row"><a class="title" href="#gbr5">Gambar 5. Halaman OSINT</a><span class="dots"></span><a class="pg" href="#gbr5"></a></div>
+<div class="toc-row"><a class="title" href="#gbr6">Gambar 6. IP Intelligence</a><span class="dots"></span><a class="pg" href="#gbr6"></a></div>
+<div class="toc-row"><a class="title" href="#gbr7">Gambar 7. Vulnerability Management</a><span class="dots"></span><a class="pg" href="#gbr7"></a></div>
+<div class="toc-row"><a class="title" href="#gbr8">Gambar 8. Incident Management</a><span class="dots"></span><a class="pg" href="#gbr8"></a></div>
+<div class="toc-row"><a class="title" href="#gbr9">Gambar 9. Blue Team (segmen 1)</a><span class="dots"></span><a class="pg" href="#gbr9"></a></div>
+<div class="toc-row"><a class="title" href="#gbr10">Gambar 10. Blue Team (segmen 2)</a><span class="dots"></span><a class="pg" href="#gbr10"></a></div>
+<div class="toc-row"><a class="title" href="#gbr11">Gambar 11. Red Team</a><span class="dots"></span><a class="pg" href="#gbr11"></a></div>
+<div class="toc-row"><a class="title" href="#gbr12">Gambar 12. Job Manager</a><span class="dots"></span><a class="pg" href="#gbr12"></a></div>
+<div class="toc-row"><a class="title" href="#gbr13">Gambar 13. Integrations</a><span class="dots"></span><a class="pg" href="#gbr13"></a></div>
+<div class="toc-row"><a class="title" href="#gbr14">Gambar 14. Reports</a><span class="dots"></span><a class="pg" href="#gbr14"></a></div>
+<div class="toc-row"><a class="title" href="#gbr15">Gambar 15. Audit Logs</a><span class="dots"></span><a class="pg" href="#gbr15"></a></div>
+<div class="toc-row"><a class="title" href="#gbr16">Gambar 16. Settings</a><span class="dots"></span><a class="pg" href="#gbr16"></a></div>
+<div class="toc-row"><a class="title" href="#gbr17">Gambar 17. Dasbor penuh (tangkapan sumber, sebelum dipotong)</a><span class="dots"></span><a class="pg" href="#gbr17"></a></div>
+
+<!-- ================= DAFTAR TABEL ================= -->
+<h1 class="front" id="dftr-tabel">Daftar Tabel</h1>
+<div class="toc-row"><a class="title" href="#tbl1">Tabel 1. Langkah instalasi satu klik (setup.sh)</a><span class="dots"></span><a class="pg" href="#tbl1"></a></div>
+<div class="toc-row"><a class="title" href="#tbl2">Tabel 2. Peta port bawaan</a><span class="dots"></span><a class="pg" href="#tbl2"></a></div>
+<div class="toc-row"><a class="title" href="#tbl3">Tabel 3. Status halaman kerja (per halaman)</a><span class="dots"></span><a class="pg" href="#tbl3"></a></div>
+<div class="toc-row"><a class="title" href="#tbl4">Tabel 4. Sembilan alat yang jalan nyata beserta ujinya</a><span class="dots"></span><a class="pg" href="#tbl4"></a></div>
+<div class="toc-row"><a class="title" href="#tbl5">Tabel 5. Lima alat terkunci</a><span class="dots"></span><a class="pg" href="#tbl5"></a></div>
+<div class="toc-row"><a class="title" href="#tbl6">Tabel 6. Rincian berkas pengujian (19 berkas)</a><span class="dots"></span><a class="pg" href="#tbl6"></a></div>
+<div class="toc-row"><a class="title" href="#tbl7">Tabel 7. Gate keamanan yang diuji</a><span class="dots"></span><a class="pg" href="#tbl7"></a></div>
+<div class="toc-row"><a class="title" href="#tbl8">Tabel 8. Batas jujur sistem saat ini</a><span class="dots"></span><a class="pg" href="#tbl8"></a></div>
+<div class="toc-row"><a class="title" href="#tbl9">Tabel 9. Jebakan pemasangan dan penanganannya</a><span class="dots"></span><a class="pg" href="#tbl9"></a></div>
+<div class="toc-row"><a class="title" href="#tbl10">Tabel 10. Variabel lingkungan berkas backend/.env.example</a><span class="dots"></span><a class="pg" href="#tbl10"></a></div>
+<div class="toc-row"><a class="title" href="#tbl11">Tabel 11. Variabel lingkungan berkas frontend/.env.example</a><span class="dots"></span><a class="pg" href="#tbl11"></a></div>
+<div class="toc-row"><a class="title" href="#tbl12">Tabel 12. Perintah dasar sehari-hari</a><span class="dots"></span><a class="pg" href="#tbl12"></a></div>
+
+<!-- ================= BAB I ================= -->
+<h1 class="bab" id="bab1">BAB I — Pendahuluan</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini memperkenalkan GARDA CYBER,
+  menjelaskan latar belakang penyusunan buku, serta menandai ruang lingkup dan
+  batas pembahasan agar Anda tahu apa yang bisa diharapkan dari buku ini.
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu menjelaskan apa itu GARDA CYBER, menyebutkan komponen utama platform,
+  dan menentukan apakah buku ini sesuai kebutuhan Anda.
+</div>
+
+<h2 id="s11">1.1 Latar Belakang</h2>
+<p>
+  Mengelola keamanan suatu lingkungan teknologi berarti bekerja dengan banyak
+  alat sekaligus: pemindai port, pemindai kerentanan, enumerasi domain,
+  pemeriksa reputasi alamat IP, dan pencatat kejadian. Masing-masing alat
+  biasanya berjalan sendiri, menyimpan hasilnya sendiri, dan tidak saling
+  berbicara. GARDA CYBER dibangun untuk mempertemukan pekerjaan itu dalam satu
+  ruangan: satu dasbor untuk melihat keadaan, satu tempat untuk mengelola aset
+  dan temuan, dan satu registri untuk menjalankan alat keamanan.
+</p>
+<p>
+  Perangkat lunak ini disusun sebagai aplikasi web modern. Bagian belakang
+  (backend) ditulis dalam Python dengan kerangka FastAPI dan menyimpan data pada
+  berkas SQLite. Bagian depan (frontend) ditulis dalam React. Alat-alat
+  keamanan tidak dilebur ke dalam kode, melainkan didaftarkan dalam satu
+  registri pusat sehingga status setiap alat — jalan nyata, pajangan, atau
+  terkunci — dapat dilihat jujur dari satu halaman.
+</p>
+<p>
+  Buku ini disusun menyusul permintaan agar tersedia manual book yang mengikuti
+  format buku ajar, lengkap dengan bukti nyata: tangkapan layar dari instalasi
+  yang benar-benar berjalan, angka pengujian yang benar-benar dijalankan, dan
+  kalimat terkunci yang ditulis apa adanya.
+</p>
+
+<h2 id="s12">1.2 Ruang Lingkup Buku</h2>
+<p>Buku ini membahas:</p>
+<ul>
+  <li>Instalasi dan persiapan di Linux/macOS (setup.sh) dan Windows (setup.bat).</li>
+  <li>Pengisian data demo otomatis ketika basis data masih kosong.</li>
+  <li>Pengoperasian halaman kerja: dasbor, aset, serangan permukaan, intelijen IP, temuan, insiden, tim biru, tim merah, dan pengelolaan tugas.</li>
+  <li>Sistem integrasi: sembilan alat yang jalan nyata, satu alat pajangan, dan lima alat terkunci.</li>
+  <li>Hasil pengujian yang benar-benar dijalankan serta batas jujur sistem.</li>
+</ul>
+
+<h2 id="s13">1.3 Yang Tidak Dibahas</h2>
+<ul>
+  <li>Pengembangan kode sumber (buku ini untuk operator, bukan untuk kontributor kode).</li>
+  <li>Penyebaran ke produksi berskala besar. Berkas <span class="mono">deployment/README.md</span> pada repositori memuat catatan persiapan deployment; penyebaran itu sendiri belum dijalankan.</li>
+  <li>Autentikasi dan manajemen peran pengguna, karena memang belum dibangun (lihat Bab VI).</li>
+</ul>
+
+<h2 id="s14">1.4 Konvensi Penulisan</h2>
+<ul>
+  <li>Nama perintah, berkas, dan alamat ditulis dengan huruf tetap (monospace), contoh: <span class="mono">setup.sh</span>.</li>
+  <li>Kalimat yang muncul persis pada aplikan ditulis dengan huruf miring di dalam kotak kuning, misalnya kalimat terkunci pada Bab V.</li>
+  <li>Catatan jujur ditulis di dalam kotak merah. Bila Anda menemukan klaim dalam buku ini, klaim itu berasal dari hasil uji atau tangkapan layar, bukan dari harapan.</li>
+</ul>
+
+<!-- ================= BAB II ================= -->
+<h1 class="bab" id="bab2">BAB II — Instalasi dan Persiapan</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini memandu Anda memasang GARDA
+  CYBER dari berkas sumber sampai aplikasi terbuka di peramban, termasuk
+  pengisian data demo otomatis dan penanganan bila port bawaan sudah dipakai.
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu memasang perangkat lunak, memeriksa kesehatan kedua server, mengisi data
+  demo, dan menghentikan atau menjalankan ulang sistem dengan benar.
+</div>
+
+<h2 id="s21">2.1 Persyaratan Sistem</h2>
+<ul>
+  <li>Python 3.11 atau lebih baru, sudah ada di <span class="mono">PATH</span>.</li>
+  <li>Node.js 20 atau lebih baru beserta <span class="mono">npm</span>.</li>
+  <li>Sistem operasi Linux, macOS, atau Windows (PowerShell).</li>
+  <li>Koneksi internet untuk mengunduh dependensi (pemasangan pertama kali).</li>
+  <li>Untuk alat tambahan (nmap, nuclei, amass, dan lainnya): lihat
+    <span class="mono">docs/INTEGRATIONS-ENABLE.md</span>; semua langkah di sana
+    tanpa <span class="mono">sudo</span>.</li>
+</ul>
+
+<h2 id="s22">2.2 Instalasi Satu Klik (setup.sh)</h2>
+<p>
+  Jalankan dari terminal di folder utama repositori:
+</p>
+<pre>bash setup.sh</pre>
+<p>
+  Skrip ini melakukan empat langkah seperti pada Tabel 1. Anda tidak perlu
+  mengetik perintah satu per satu; skrip berhenti sendiri bila salah satu langkah
+  gagal, dengan pesan yang menyebutkan langkah mana yang bermasalah.
+</p>
+<table id="tbl1">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 1. Langkah instalasi satu klik (setup.sh)</caption>
+  <tr><th style="width:14%">Langkah</th><th style="width:40%">Yang dilakukan</th><th>Keterangan</th></tr>
+  <tr><td>[1/4]</td><td>Persiapan virtual environment backend</td><td>Dibuat di <span class="mono">backend/.venv</span> bila belum ada.</td></tr>
+  <tr><td>[2/4]</td><td>Instal dependensi backend</td><td>Membaca <span class="mono">backend/requirements.txt</span>; <span class="mono">pip</span> ditingkatkan lebih dulu.</td></tr>
+  <tr><td>[3/4]</td><td>Instal dependensi frontend</td><td><span class="mono">npm install</span> di folder <span class="mono">frontend/</span>; bisa beberapa menit.</td></tr>
+  <tr><td>[4/4]</td><td>Jalankan server, tunggu kesehatan, isi data demo, buka peramban</td><td>Lihat Bab 2.4 dan 2.5 untuk rincian.</td></tr>
+</table>
+<p>
+  Dua berkas contoh disalin otomatis bila belum ada: <span class="mono">backend/.env</span>
+  dari <span class="mono">backend/.env.example</span> dan
+  <span class="mono">frontend/.env.local</span> dari
+  <span class="mono">frontend/.env.example</span>. Berkas yang sudah ada
+  <b>tidak</b> ditimpa, sehingga settingan Anda tidak hilang saat menjalankan
+  skrip lagi.
+</p>
+
+<h2 id="s23">2.3 Instalasi di Windows (setup.bat)</h2>
+<p>
+  Pasangan skrip untuk Windows adalah <span class="mono">setup.bat</span>. Alurnya
+  sama: siapkan lingkungan, instal dependensi, jalankan server, tunggu kesehatan,
+  isi data demo, lalu buka peramban. Jalankan dari Command Prompt atau PowerShell
+  di folder utama repositori dengan mengklik dua kali berkasnya atau mengetikkan
+  namanya di terminal.
+</p>
+
+<h2 id="s24">2.4 Pengisian Data Demo Otomatis</h2>
+<p>
+  Setelah pemeriksaan kesehatan berhasil, skrip mengisi data demo secara otomatis
+  melalui titik akhir HTTP yang sama dengan yang dipakai manusia, dengan dua
+  pengaman:
+</p>
+<ul>
+  <li><span class="mono">--skip-existing</span>: bila basis data sudah terisi,
+    pengisian dilewati. Menjalankan <span class="mono">setup.sh</span> dua kali
+    tidak menduplikasi data.</li>
+  <li>Tanpa <span class="mono">--with-osint</span>: aman tanpa sambungan internet
+    ke penyedia luar.</li>
+</ul>
+<p>
+  Bila pengisian gagal, skrip hanya menampilkan peringatan
+  <span class="mono">[WARN]</span> dan tetap melanjutkan — server sudah jalan,
+  hanya dasbor yang mungkin kosong. Anda dapat mengisi ulang kelak dengan:
+</p>
+<pre>cd backend
+.venv/bin/python scripts/seed_demo.py --base "http://127.0.0.1:8000" --skip-existing</pre>
+
+<h2 id="s25">2.5 Peta Port dan Alamat</h2>
+<table id="tbl2">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 2. Peta port bawaan</caption>
+  <tr><th style="width:30%">Layanan</th><th style="width:22%">Port bawaan</th><th>Alamat</th></tr>
+  <tr><td>Backend (API)</td><td>8000</td><td><span class="mono">http://127.0.0.1:8000</span></td></tr>
+  <tr><td>Frontend</td><td>5173</td><td><span class="mono">http://localhost:5173</span></td></tr>
+</table>
+<p>
+  Pada mesin penyusun buku ini, port 8000 sudah dipakai layanan lain, sehingga
+  backend berjalan di port 8010. Anda dapat memakai port lain dengan cara yang
+  sama (lihat 2.6).
+</p>
+
+<h2 id="s26">2.6 Berhenti, Menjalankan Ulang, dan Port Kustom</h2>
+<p>
+  Skrip menyimpan nomor proses pada dua berkas penanda dan log pada dua berkas
+  log, semuanya di folder <span class="mono">/tmp</span>:
+</p>
+<ul>
+  <li><span class="mono">/tmp/garda-cyber-backend.pid</span> dan <span class="mono">/tmp/garda-cyber-frontend.pid</span></li>
+  <li><span class="mono">/tmp/garda-cyber-backend.log</span> dan <span class="mono">/tmp/garda-cyber-frontend.log</span></li>
+</ul>
+<p>Untuk berhenti:</p>
+<pre>kill $(cat /tmp/garda-cyber-backend.pid) $(cat /tmp/garda-cyber-frontend.pid)</pre>
+<p>atau:</p>
+<pre>pkill -f "uvicorn app.main:app" ; pkill -f vite</pre>
+<p>Untuk memakai port lain, misalnya 8001 dan 5174:</p>
+<pre>bash setup.sh 8001 5174</pre>
+<p>
+  Skrip menulis ulang baris <span class="mono">VITE_API_BASE_URL</span> pada
+  <span class="mono">frontend/.env.local</span> supaya alamat depan cocok dengan
+  port belakang yang dipakai. Bila baris itu sudah mengarah ke domain lain
+  (misalnya alamat produksi), skrip membiarkannya dan memberi peringatan.
+</p>
+
+<h2 id="s27">2.7 Variabel Lingkungan</h2>
+<p>
+  Daftar lengkap variabel beserta fungsinya ada pada Lampiran A. Dua aturan
+  penting untuk menghindari jebakan umum:
+</p>
+<ul>
+  <li><span class="mono">DATABASE_URL</span> yang berbentuk
+    <span class="mono">sqlite:///./garda_cyber.db</span> bersifat relatif terhadap
+    folder tempat perintah dijalankan. Menjalankan backend dari folder berbeda
+    menghasilkan dua basis data yang berbeda, dan data seolah hilang. Berkas
+    <span class="mono">backend/.env</span> hasil salinan contoh sudah memakai
+    penanganan yang benar; jalankan backend dengan <span class="mono">cd backend</span>
+    lebih dulu.</li>
+  <li>Berkas <span class="mono">.env</span> asli jangan pernah dikirim ke repositori
+    Git. Berkas contoh (<span class="mono">.env.example</span>) aman karena hanya
+    memuat nama variabel, bukan nilai rahasia.</li>
+</ul>
+
+<!-- ================= BAB III ================= -->
+<h1 class="bab" id="bab3">BAB III — Dasbor dan Manajemen Aset</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini memandu Anda membaca dasbor,
+  mengelola inventaris aset, menjelajahi serangan permukaan lewat OSINT domain,
+  dan memeriksa reputasi alamat IP.
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu membaca kartu indikator dasbor, membuat dan mengubah catatan aset,
+  menjalankan pencarian OSINT domain, serta memahami hasil pemeriksaan IP.
+</div>
+
+<h2 id="s31">3.1 Dasbor</h2>
+<p>
+  Dasbor adalah halaman pertama yang Anda jumpai. Halaman ini menampilkan
+  keadaan sistem dalam bentuk kartu indikator dan grafik, seluruhnya ditarik
+  dari basis data nyata melalui titik akhir <span class="mono">/health</span> dan
+  <span class="mono">/assets</span>. Pada Gambar 1 dan Gambar 2 terlihat:
+  jumlah aset, jumlah temuan terbuka, jumlah insiden aktif, rasio integrasi yang
+  jalan (9 dari 15), serta sebaran temuan dan grafik tren.
+</p>
+<figure id="gbr1">
+  <img class="seg" src="images/mb-dashboard-1.png" alt="Dasbor segmen 1">
+  <figcaption>Gambar 1. Dasbor — kartu indikator dan grafik (segmen 1)</figcaption>
+</figure>
+<figure id="gbr2">
+  <img class="seg" src="images/mb-dashboard-2.png" alt="Dasbor segmen 2">
+  <figcaption>Gambar 2. Dasbor — daftar insiden dan tugas (segmen 2)</figcaption>
+</figure>
+<p class="small">
+  Tangkapan pada Gambar 1 dan Gambar 2 diambil dari satu bingkai penuh setinggi
+  3.950 piksel yang kemudian dipotong menjadi dua segmen dengan tumpang tindih
+  kecil agar terbaca utuh di atas kertas A4.
+</p>
+
+<h2 id="s32">3.2 Asset Inventory</h2>
+<p>
+  Halaman Asset Inventory menyimpan catatan aset — objek yang menjadi tanggung
+  jawab pengamanan, misalnya suatu host atau domain. Halaman ini terhubung penuh
+  dengan API: Anda dapat menambah, mengubah, menghapus, dan mencari catatan, dan
+  setiap perubahan tercatat di log audit (lihat 5.7).
+</p>
+<figure id="gbr3">
+  <img src="images/mb-127.0.0.1_5173-assets-1440x900.png" alt="Asset Inventory">
+  <figcaption>Gambar 3. Asset Inventory — daftar aset beserta aksi kelola</figcaption>
+</figure>
+
+<h2 id="s33">3.3 Attack Surface (OSINT Domain)</h2>
+<p>
+  Halaman Attack Surface memuat OSINT Domain Intelligence: pencarian catatan DNS
+  dan pemeriksaan sertifikat TLS untuk suatu nama domain. Dua hal yang membuat
+  halaman ini layak diandalkan:
+</p>
+<ul>
+  <li><b>Penegakan anti-SSRF di belakang:</b> larangan mengakses alamat privat,
+    rentang loopback, dan titik akhir meta-data awan ditegakkan oleh layanan,
+    bukan sekadar oleh peramban. Jadi keamanan tidak bergantung pada disiplin
+    pengguna.</li>
+  <li><b>Batas waktu:</b> permintaan DNS dan TLS dibatasi waktu (bawaan 4 detik)
+    agar domain yang tidak merespons tidak menggantungkan pekerjaan Anda.</li>
+</ul>
+<figure id="gbr4">
+  <img src="images/mb-127.0.0.1_5173-attack-surface-1440x900.png" alt="Attack Surface">
+  <figcaption>Gambar 4. Attack Surface — hasil pencarian OSINT domain</figcaption>
+</figure>
+<figure id="gbr5">
+  <img src="images/mb-127.0.0.1_5173-osint-1440x900.png" alt="Halaman OSINT">
+  <figcaption>Gambar 5. Halaman OSINT — tampilan intelijen domain</figcaption>
+</figure>
+
+<h2 id="s34">3.4 IP Intelligence</h2>
+<p>
+  Halaman IP Intelligence memeriksa alamat IPv4 maupun IPv6. Hasilnya bukan
+  sekadar jawaban dari penyedia: alamat diklasifikasi lebih dulu, ruang lingkup
+  alamat yang boleh diperiksa ditegakkan di belakang, dan riwayat pemeriksaan
+  tersimpan di basis data sehingga Anda dapat menelusuri kembali alamat yang
+  pernah diperiksa.
+</p>
+<p>
+  Bila kunci API AbuseIPDB belum diisi, sistem memakai penyedia contoh
+  (demo) — dan setiap jawabannya berlabel jelas seperti dijelaskan pada 5.3.
+  Badge <b>Mode Demo</b> tampak pada halaman ini dan pada ringkasan tugas.
+</p>
+<figure id="gbr6">
+  <img src="images/mb-127.0.0.1_5173-ip-intelligence-1440x900.png" alt="IP Intelligence">
+  <figcaption>Gambar 6. IP Intelligence — klasifikasi alamat, riwayat, dan label Mode Demo</figcaption>
+</figure>
+
+<!-- ================= BAB IV ================= -->
+<h1 class="bab" id="bab4">BAB IV — Operasi Keamanan</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini memandu Anda mengelola temuan
+  kerentanan, menangani insiden, bekerja dari sisi pertahanan (tim biru), dan
+  menjalankan tugas dari sisi penyerang terkendali (tim merah).
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu mengelola temuan dan insiden, membaca log akses tim biru, menjalankan
+  tugas tim merah, serta memantau seluruh tugas dari satu tempat.
+</div>
+
+<h2 id="s41">4.1 Vulnerability Management</h2>
+<p>
+  Halaman Vulnerability Management menghimpun temuan dari semua sumber ke dalam
+  satu daftar. Panel GitHub Exposure Monitor di dalamnya menjalankan pemindaian
+  repositori langsung dari halaman ini — Anda tidak perlu beralih ke terminal
+  untuk melihat apakah berkas repositori membocorkan sesuatu.
+</p>
+<figure id="gbr7">
+  <img src="images/mb-127.0.0.1_5173-vulnerabilities-1440x900.png" alt="Vulnerability Management">
+  <figcaption>Gambar 7. Vulnerability Management — temuan dari semua sumber + panel GitHub Exposure Monitor</figcaption>
+</figure>
+
+<h2 id="s42">4.2 Incident Management</h2>
+<p>
+  Halaman Incident Management memuat pengelolaan insiden: catatan kejadian
+  keamanan yang perlu ditangani, dari pembuatan sampai penyelesaian. Data insiden
+  juga menjadi sumber angka pada dasbor (Gambar 1) dan bahan ringkasan pada
+  laporan (lihat 5.6).
+</p>
+<figure id="gbr8">
+  <img src="images/mb-127.0.0.1_5173-incidents-1440x900.png" alt="Incident Management">
+  <figcaption>Gambar 8. Incident Management — daftar insiden aktif</figcaption>
+</figure>
+
+<h2 id="s43">4.3 Blue Team</h2>
+<p>
+  Halaman Blue Team adalah pos pertahanan. Halaman ini terhubung dengan titik
+  akhir <span class="mono">/incidents</span> sehingga insiden dapat dikelola dari
+  sini, dan menampilkan log akses — catatan metode, jalur, status, alamat IP, dan
+  waktu dari setiap permintaan ke API (lihat Lampiran A, <span class="mono">ACCESS_LOG_ENABLED</span>).
+  Karena itu halaman ini juga menjadi tempat Anda melihat jejak aktivitas yang
+  terekam sistem.
+</p>
+<figure id="gbr9">
+  <img class="seg" src="images/mb-blue-team-1.png" alt="Blue Team segmen 1">
+  <figcaption>Gambar 9. Blue Team — kelola insiden dan log akses (segmen 1)</figcaption>
+</figure>
+<figure id="gbr10">
+  <img class="seg" src="images/mb-blue-team-2.png" alt="Blue Team segmen 2">
+  <figcaption>Gambar 10. Blue Team — kelola insiden dan log akses (segmen 2)</figcaption>
+</figure>
+
+<h2 id="s44">4.4 Red Team</h2>
+<p>
+  Halaman Red Team memuat katalog alat dari registri integrasi. Anda memilih
+  satu alat dan satu aset target dari daftar tarik-turun, lalu menjalankannya
+  melalui tombol pada halaman. Sistem mengirim permintaan pembuatan tugas ke
+  titik akhir <span class="mono">/jobs</span> dengan bentuk seperti:
+</p>
+<pre>{ "tool_id": "nmap", "asset_id": "...", "parameters": { "flags": ["-sV"] } }</pre>
+<p>
+  Sebelum tugas benar-benar dibuat, aplikasi menampilkan dialog konfirmasi
+  terlebih dahulu, sehingga Anda tidak memicu pemindaian hanya karena salah
+  klik. Riwayat tugas yang pernah dijalankan tampil pada tabel di halaman yang
+  sama.
+</p>
+<figure id="gbr11">
+  <img src="images/mb-127.0.0.1_5173-red-team-1440x900.png" alt="Red Team">
+  <figcaption>Gambar 11. Red Team — katalog alat, pilihan aset target, dan konfirmasi pelaksanaan</figcaption>
+</figure>
+
+<h2 id="s45">4.5 Job Manager</h2>
+<p>
+  Job Manager adalah pusat pemantauan seluruh tugas, dari alat apa pun. Halaman
+  ini menyediakan tabel tugas, penapis status, grafik sebaran, dan lencana
+  status — termasuk status <i>Dibatalkan</i> bila suatu tugas dihentikan sebelum
+  selesai.
+</p>
+<figure id="gbr12">
+  <img src="images/mb-127.0.0.1_5173-jobs-1440x900.png" alt="Job Manager">
+  <figcaption>Gambar 12. Job Manager — tabel tugas, penapis status, dan grafik sebaran</figcaption>
+</figure>
+
+<!-- ================= BAB V ================= -->
+<h1 class="bab" id="bab5">BAB V — Sistem dan Integrasi</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini menjelaskan registri integrasi —
+  bagaimana status setiap alat dilaporkan jujur — serta halaman laporan, log
+  audit, dan pengaturan.
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu membaca status tiap alat, membedakan alat jalan nyata dari alat pajangan
+  dan alat terkunci, serta memahami di mana kunci API disimpan.
+</div>
+
+<h2 id="s51">5.1 Halaman Integrations</h2>
+<p>
+  Halaman Integrations menampilkan kelima belas alat yang terdaftar dalam
+  registri. Yang membuat halaman ini berbeda dari katalog biasa adalah dua
+  status yang dilaporkan terpisah dan jujur:
+</p>
+<ul>
+  <li><b>implemented</b> — ada kode alatnya di sistem.</li>
+  <li><b>configured</b> — variabel lingkungan yang dibutuhkan sudah diisi.</li>
+</ul>
+<p>
+  Suatu alat boleh <span class="mono">implemented</span> tetapi belum
+  <span class="mono">configured</span>; kombinasi itu tidak disembunyikan.
+  Pada Gambar 13 terlihat kelima belas alat dengan lencana statusnya, termasuk
+  lima alat terkunci dengan kalimat yang persis seperti pada kotak di bawah.
+</p>
+<figure id="gbr13">
+  <img src="images/mb-127.0.0.1_5173-integrations-1440x900.png" alt="Integrations">
+  <figcaption>Gambar 13. Integrations — lima belas alat dengan status jujur per alat</figcaption>
+</figure>
+
+<h2 id="s52">5.2 Sembilan Alat yang Jalan Nyata</h2>
+<p>
+  Sembilan alat berikut diverifikasi dengan tugas nyata, bukan sekadar status
+  "terpasang" pada kertas. Hasil ujinya tercantum pada Tabel 4.
+</p>
+<table id="tbl4">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 4. Sembilan alat yang jalan nyata beserta ujinya</caption>
+  <tr><th style="width:22%">Alat</th><th style="width:44%">Uji yang dijalankan</th><th>Hasil</th></tr>
+  <tr><td><span class="mono">nmap</span></td><td><span class="mono">-sV</span> ke <span class="mono">127.0.0.1</span></td><td>selesai, versi terdeteksi</td></tr>
+  <tr><td><span class="mono">nuclei</span></td><td>pemindaian ke <span class="mono">http://127.0.0.1:8010</span> (API sendiri)</td><td>selesai, menjumpai <span class="mono">openapi</span>, <span class="mono">swagger-api</span>, <span class="mono">tech-detect: uvicorn</span></td></tr>
+  <tr><td><span class="mono">amass</span></td><td>enumerasi pasif <span class="mono">example.com</span></td><td>selesai, catatan NS + A + AAAA</td></tr>
+  <tr><td><span class="mono">kartika_load</span></td><td>beban 3 detik ke API sendiri</td><td>selesai, 8 permintaan, 9,5 rps, p50 190 ms, temuan <span class="mono">RATE_LIMIT_MISSING</span></td></tr>
+  <tr><td><span class="mono">kartika_sqli_probe</span></td><td>parameter <span class="mono">id</span> di API sendiri</td><td>selesai, <span class="mono">TANPA_SINYAL</span> skor 0/100</td></tr>
+  <tr><td><span class="mono">kartika_wa_phish</span></td><td>analisis teks (luring)</td><td>selesai, skor 6 = TINGGI</td></tr>
+  <tr><td><span class="mono">github_exposure</span></td><td>pemindaian repositori <span class="mono">jejakmasgondrong/GARDA-CYBER</span></td><td>selesai, 200 berkas diperiksa, 0 temuan baru (dedup jalan)</td></tr>
+  <tr><td><span class="mono">ip_reputation</span></td><td><span class="mono">lookup 8.8.8.8</span></td><td>jalan, dengan label Mode Demo (lihat 5.3)</td></tr>
+  <tr><td><span class="mono">osint_domain</span></td><td><span class="mono">example.com</span></td><td>selesai, 4 alamat A/AAAA, catatan MX/NS/TXT, TLS Cloudflare</td></tr>
+</table>
+
+<h2 id="s53">5.3 Mode Demo (ip_reputation)</h2>
+<p>
+  Alat <span class="mono">ip_reputation</span> berjalan tanpa kunci API AbuseIPDB
+  karena ada penyedia contoh sebagai penampung. Ini <b>bukan</b> reputasi nyata,
+  dan sistem dengan sengaja melabelinya di mana pun jawaban itu muncul. Ringkasan
+  tugas selalu membawa kalimat berikut, apa adanya:
+</p>
+<div class="quote-box">
+  "karena keterbatasan waktu dan sumber daya, maka fungsi tidak sampai berjalan
+  karena butuh api berbayar" — disertai tanda
+  <span class="mono">[DATA DEMO -- bukan reputasi nyata]</span>.
+</div>
+<p>
+  Titik akhir <span class="mono">/integrations</span> mengirimkan
+  <span class="mono">demo_mode: true</span> untuk alat ini, dan halaman
+  Integrations menampilkan badge <b>Mode Demo</b> beserta penjelasannya. Bila
+  <span class="mono">ABUSEIPDB_API_KEY</span> diisi kelak, penyedia contoh
+  otomatis tidak dipakai lagi dan badge itu hilang dengan sendirinya.
+</p>
+
+<h2 id="s54">5.4 Lima Alat Terkunci</h2>
+<p>
+  Lima alat berikut ini tidak dapat dijalankan pada versi ini. Sistem menolak
+  pembuatan tugas untuk mereka dengan kalimat persis seperti pada kotak di bawah,
+  sebelum pertanyaan "apakah alatnya terpasang" sempat dijawab.
+</p>
+<table id="tbl5">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 5. Lima alat terkunci</caption>
+  <tr><th style="width:22%">Alat</th><th>Yang dibutuhkan bila ingin diaktifkan kelak</th></tr>
+  <tr><td><span class="mono">owasp_zap</span></td><td>daemon ZAP + <span class="mono">OWASP_ZAP_URL</span> + <span class="mono">OWASP_ZAP_API_KEY</span></td></tr>
+  <tr><td><span class="mono">wazuh</span></td><td>server Wazuh + <span class="mono">WAZUH_API_URL</span> + pengguna + sandi</td></tr>
+  <tr><td><span class="mono">suricata</span></td><td>mesin IDS/IPS terpasang + aturan (belum ada kontrak konfigurasi resmi pada Tahap 1)</td></tr>
+  <tr><td><span class="mono">osquery</span></td><td>daemon osquery + konfigurasi pertanyaan (belum ada kontrak konfigurasi resmi pada Tahap 1)</td></tr>
+  <tr><td><span class="mono">greenbone</span></td><td>pemindai Greenbone/OpenVAS + kredensial (belum ada kontrak konfigurasi resmi pada Tahap 1)</td></tr>
+</table>
+<div class="quote-box">
+  Kalimat terkunci, persis seperti yang ditampilkan sistem:
+  <span class="mono">fitur locked, silahkan hubungi tim Luzsec 1</span>
+</div>
+
+<h2 id="s55">5.5 Satu Alat Pajangan (sigma)</h2>
+<p>
+  Alat <span class="mono">sigma</span> terdaftar sebagai pajangan: keberadaannya
+  ditampilkan agar Anda tahu bahwa tempat itu sudah disediakan, tetapi alat ini
+  tidak menjalankan tugas. Hitungannya jujur: 9 jalan nyata + 1 pajangan +
+  5 terkunci = 15.
+</p>
+
+<h2 id="s56">5.6 Reports</h2>
+<p>
+  Halaman Reports merangkum temuan dan insiden menjadi gambaran keadaan. Pada
+  instalasi dengan data yang masih sedikit, halaman ini menampilkan keadaan kosong
+  secara jujur — laporan hanya bermakna bila data pendukungnya sudah terkumpul.
+</p>
+<figure id="gbr14">
+  <img src="images/mb-127.0.0.1_5173-reports-1440x900.png" alt="Reports">
+  <figcaption>Gambar 14. Reports — rangkuman temuan dan insiden</figcaption>
+</figure>
+
+<h2 id="s57">5.7 Audit Logs</h2>
+<p>
+  Halaman Audit Logs menampilkan catatan jejak: aksi pembuatan dan pengubahan
+  temuan serta insiden terekam di sini. Keberadaan log ini yang membuat klaim
+  "setiap perubahan tercatat" pada Bab III dapat diperiksa, bukan sekadar
+  dikatakan.
+</p>
+<figure id="gbr15">
+  <img src="images/mb-127.0.0.1_5173-audit-logs-1440x900.png" alt="Audit Logs">
+  <figcaption>Gambar 15. Audit Logs — jejak aksi yang terekam sistem</figcaption>
+</figure>
+
+<h2 id="s58">5.8 Settings</h2>
+<p>
+  Halaman Settings memuat tempat Anda mengisikan kunci API. Perlu Anda ketahui
+  dengan jelas: nilai yang Anda tulis di sini disimpan di penyimpanan lokal
+  peramban (<span class="mono">localStorage</span>), <b>bukan</b> di server.
+  Sistem menjelaskan bahwa kunci itu dikirim lewat kepala permintaan
+  <span class="mono">X-API-Key</span> pada setiap panggilan API.
+</p>
+<p>
+  Sebaliknya, berkas <span class="mono">backend/.env.example</span> memuat variabel
+  <span class="mono">API_KEY</span> untuk sisi belakang: bila diisi, semua
+  <span class="mono">/api/v1/*</span> (kecuali kesehatan) mewajibkan kepala
+  <span class="mono">X-API-Key</span>. Bila kosong, tidak ada autentikasi. Lihat
+  Bab VI untuk konsekuensinya.
+</p>
+<figure id="gbr16">
+  <img src="images/mb-127.0.0.1_5173-settings-1440x900.png" alt="Settings">
+  <figcaption>Gambar 16. Settings — pengisian kunci API di sisi peramban</figcaption>
+</figure>
+
+<h2 id="s59">5.9 Status Tiap Halaman Kerja</h2>
+<p>
+  Agar Anda tidak perlu menebak, berikut status jujur setiap halaman kerja
+  seperti tercantum dalam dokumentasi proyek.
+</p>
+<table id="tbl3">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 3. Status halaman kerja (per halaman)</caption>
+  <tr><th style="width:30%">Halaman</th><th>Status</th></tr>
+  <tr><td>Overview (Dasbor)</td><td>Terhubung ke <span class="mono">/health</span> dan <span class="mono">/assets</span> nyata</td></tr>
+  <tr><td>Asset Inventory</td><td>Kelola penuh, terhubung API nyata</td></tr>
+  <tr><td>IP Intelligence</td><td>Selesai dan diuji: klasifikasi IPv4/IPv6, penegakan ruang lingkup di belakang, penyedia demo berlabel, riwayat tersimpan</td></tr>
+  <tr><td>Blue Team</td><td>Terhubung ke <span class="mono">/incidents</span>, tabel dan keadaan kosong nyata</td></tr>
+  <tr><td>Audit Logs</td><td>Terhubung ke <span class="mono">/audit-logs</span>, mencatat aksi buat/ubah temuan dan insiden</td></tr>
+  <tr><td>Integrations</td><td>Status jujur per alat: implemented vs configured</td></tr>
+  <tr><td>Attack Surface</td><td>Selesai dan diuji: DNS + TLS dengan penegakan anti-SSRF di belakang</td></tr>
+  <tr><td>Vulnerability Management</td><td>Selesai dan diuji: temuan dari semua sumber + panel GitHub Exposure Monitor</td></tr>
+  <tr><td>Red Team</td><td>Katalog alat dari registri; pelaksanaan tugas nyata dari halaman ini jalan (konfirmasi + riwayat)</td></tr>
+  <tr><td>Reports</td><td>Keadaan kosong — menunggu data temuan/insiden lebih banyak</td></tr>
+  <tr><td>Settings</td><td>Halaman dasar, belum ada manajemen pengguna/persekutuan (menunggu autentikasi)</td></tr>
+</table>
+
+<!-- ================= BAB VI ================= -->
+<h1 class="bab" id="bab6">BAB VI — Pengujian dan Batas Keamanan</h1>
+<div class="desc-box">
+  <span class="lbl">Deskripsi:</span> Bab ini memuat hasil pengujian yang
+  benar-benar dijalankan, daftar gate keamanan yang menjaga sistem, batas jujur
+  yang belum diselesaikan, dan penanganan masalah pemasangan yang paling sering
+  ditemui.
+</div>
+<div class="goal-box">
+  <span class="lbl">Tujuan Pembelajaran:</span> Setelah membaca bab ini, Anda
+  mampu menjelaskan apa yang sudah diuji dan berapa hasilnya, apa yang dijaga
+  sistem secara otomatis, apa yang belum ada, dan cara mengatasi masalah
+  pemasangan yang umum.
+</div>
+
+<h2 id="s61">6.1 Hasil Pengujian</h2>
+<p>
+  Pengujian dijalankan dengan perintah berikut dari folder
+  <span class="mono">backend/</span>:
+</p>
+<pre>.venv/bin/python -m pytest -q</pre>
+<p>
+  Hasil aktual pada penyusunan buku ini: <b>114 test lulus</b>, tanpa kegagalan.
+  Angka ini bukan target — melainkan keluaran perintah di atas. Rincian per
+  berkas pengujian ada pada Tabel 6.
+</p>
+<table id="tbl6">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 6. Rincian berkas pengujian (19 berkas)</caption>
+  <tr><th style="width:44%">Berkas uji</th><th style="width:18%">Jumlah uji</th><th>Yang diperiksa</th></tr>
+  <tr><td><span class="mono">kartika_probe_wa</span></td><td>16</td><td>probing WhatsApp phishing</td></tr>
+  <tr><td><span class="mono">abuseipdb_provider</span></td><td>13</td><td>penyedia reputasi IP</td></tr>
+  <tr><td><span class="mono">osint_dns_safety</span></td><td>12</td><td>keamanan pencarian DNS</td></tr>
+  <tr><td><span class="mono">ip_classification</span></td><td>12</td><td>klasifikasi alamat IP</td></tr>
+  <tr><td><span class="mono">github_exposure_service</span></td><td>11</td><td>pemantauan paparan repositori</td></tr>
+  <tr><td><span class="mono">kartika_load_adapter</span></td><td>9</td><td>alat beban dan ketahanan</td></tr>
+  <tr><td><span class="mono">osint_api</span></td><td>7</td><td>titik akhir OSINT</td></tr>
+  <tr><td><span class="mono">findings</span></td><td>6</td><td>temuan kerentanan</td></tr>
+  <tr><td><span class="mono">secret_patterns</span></td><td>5</td><td>pola rahasia pada berkas</td></tr>
+  <tr><td><span class="mono">ip_intelligence_api</span></td><td>4</td><td>titik akhir intelijen IP</td></tr>
+  <tr><td><span class="mono">incidents</span></td><td>4</td><td>pengelolaan insiden</td></tr>
+  <tr><td><span class="mono">access_log_and_api_key</span></td><td>3</td><td>log akses dan kunci API</td></tr>
+  <tr><td><span class="mono">redaction</span></td><td>2</td><td>penyamaran data sensitif</td></tr>
+  <tr><td><span class="mono">osint_tls_service</span></td><td>2</td><td>pemeriksaan sertifikat TLS</td></tr>
+  <tr><td><span class="mono">integrations_registry</span></td><td>2</td><td>registri integrasi</td></tr>
+  <tr><td><span class="mono">health</span></td><td>2</td><td>titik akhir kesehatan</td></tr>
+  <tr><td><span class="mono">audit_logs</span></td><td>2</td><td>catatan jejak</td></tr>
+  <tr><td><span class="mono">kartika_crash_stub</span></td><td>1</td><td>stub tidak fungsional (sengaja)</td></tr>
+  <tr><td><span class="mono">assets</span></td><td>1</td><td>manajemen aset</td></tr>
+</table>
+<p class="table-note">
+  Jumlah seluruhnya 114. Berkas <span class="mono">docs/MERGE_REPORT.md</span>
+  memuat angka "72 lulus" — angka itu adalah laporan historis ketika gabungan
+  kode, bukan kondisi sekarang. Buku ini memakai angka aktual.
+</p>
+
+<h2 id="s62">6.2 Gate Keamanan yang Diuji</h2>
+<p>
+  Sistem menjaga dirinya sendiri lewat beberapa gate. Masing-masing sudah diuji,
+  dan hasilnya menyertai rincian pada Tabel 7.
+</p>
+<table id="tbl7">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 7. Gate keamanan yang diuji</caption>
+  <tr><th style="width:26%">Gate</th><th style="width:44%">Yang dijaga</th><th>Bukti</th></tr>
+  <tr><td>Anti-SSRF</td><td>Larangan alamat privat, loopback, dan titik akhir meta-data awan pada pencarian OSINT</td><td>berkas uji <span class="mono">osint_dns_safety</span> (12 uji)</td></tr>
+  <tr><td>Ruang lingkup IP</td><td>Alamat yang boleh diperiksa ditegakkan di belakang, bukan di peramban</td><td>berkas uji <span class="mono">ip_intelligence_api</span> (4 uji)</td></tr>
+  <tr><td>Kunci API</td><td><span class="mono">X-API-Key</span> wajib bila <span class="mono">API_KEY</span> diisi; titik akhir kesehatan tetap bebas</td><td>berkas uji <span class="mono">access_log_and_api_key</span> (3 uji)</td></tr>
+  <tr><td>Penyedia demo berlabel</td><td>Jawaban demo tidak pernah menyamar sebagai data nyata</td><td>berkas uji <span class="mono">abuseipdb_provider</span> (13 uji)</td></tr>
+  <tr><td>Penyamaran data</td><td>Data sensitif disamarkan sebelum ditampilkan</td><td>berkas uji <span class="mono">redaction</span> (2 uji)</td></tr>
+  <tr><td>Alat terkunci</td><td>Pembuatan tugas untuk lima alat terkunci ditolak sebelum eksekusi</td><td>kalimat persis pada 5.4, terverifikasi di antarmuka</td></tr>
+  <tr><td>Batas beban</td><td>Durasi, untaian, jumlah permintaan, dan rps dibatasi server</td><td>berkas uji <span class="mono">kartika_load_adapter</span> (9 uji)</td></tr>
+</table>
+<p>
+  Dua temuan pengamanan pada sisi depan juga sudah diperbaiki dan terekam dalam
+  <span class="mono">docs/SECURITY_AUDIT.md</span>, bersama sepuluh saran untuk
+  sisi belakang yang sampai dengan buku ini masih berupa tulisan, belum kode.
+</p>
+
+<h2 id="s63">6.3 Batas Jujur Sistem Saat Ini</h2>
+<p>
+  Bagian ini sengaja ditulis apa adanya. Bila Anda menjadikan sistem ini untuk
+  hal di luar batas berikut, Anda berisiko menggantungkan harapan pada sesuatu
+  yang belum ada.
+</p>
+<table id="tbl8">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 8. Batas jujur sistem saat ini</caption>
+  <tr><th style="width:34%">Batas</th><th>Akibatnya bagi Anda</th></tr>
+  <tr><td>Autentikasi dan manajemen peran belum dibangun</td><td>Belum ada pemisahan hak akses pengguna; halaman Settings masih dasar</td></tr>
+  <tr><td>ZAP, Wazuh, Suricata, Sigma, osquery, Greenbone hanya berupa entri registri atau terkunci (<span class="mono">configured: false</span>)</td><td>Kelima-limanya tidak menjalankan tugas pada versi ini</td></tr>
+  <tr><td><span class="mono">github_exposure</span> bersifat sinkron</td><td>Pemindaian satu repositori bisa memakan waktu hingga menit; tidak ada antrean, sesuai desain</td></tr>
+  <tr><td><span class="mono">/api/v1/*</span> dapat diakses siapa pun yang menjangkau port belakang bila <span class="mono">API_KEY</span> kosong</td><td>Jangan membiarkan port terbuka ke jaringan lain tanpa mengisi kunci</td></tr>
+  <tr><td>SQLite dalam Docker memakai volume bernama, tetapi pencadangan tetap tanggung jawab Anda</td><td>Cadangkan berkas basis data secara manual dan berkala</td></tr>
+  <tr><td>Penyebaran produksi belum dijalankan</td><td>Berkas <span class="mono">deployment/README.md</span> berisi persiapan saja</td></tr>
+</table>
+
+<h2 id="s64">6.4 Troubleshooting</h2>
+<p>
+  Masalah berikut ditemui sendiri ketika sistem ini dikerjakan, dan penanganannya
+  sudah terekam dalam dokumentasi proyek.
+</p>
+<table id="tbl9">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 9. Jebakan pemasangan dan penanganannya</caption>
+  <tr><th style="width:38%">Gejala</th><th>Penanganan</th></tr>
+  <tr><td>Data "hilang" setelah server dijalankan dari folder lain</td><td><span class="mono">DATABASE_URL</span> relatif terhadap folder tempat perintah dijalankan; jalankan backend dari <span class="mono">backend/</span> atau pakai path absolut</td></tr>
+  <tr><td>Berkas <span class="mono">backend/.env</span> tidak terbaca</td><td>Berkas <span class="mono">.env</span> juga dibaca relatif terhadap folder kerja; jalankan dengan <span class="mono">cd backend</span> lebih dulu</td></tr>
+  <tr><td>nmap tidak dikenali padahal berkasnya ada</td><td>Hasil ekstrak berkas <span class="mono">.deb</span> butuh berkas pembungkus (<span class="mono">wrapper</span>), bukan sekadar path ke programnya</td></tr>
+  <tr><td>nuclei gagal dengan waktu habis pada tugas pertama</td><td>Unduh templat nuclei sebelum menjalankan tugas pertama</td></tr>
+  <tr><td>amass membalas kesalahan "engine did not respond"</td><td>amass v5 pecah menjadi klien dan mesin; pakai amass v4</td></tr>
+  <tr><td>Port 8000 sudah dipakai layanan lain</td><td>Jalankan dengan port lain, misalnya <span class="mono">bash setup.sh 8001 5174</span></td></tr>
+  <tr><td>Proses tidak berhenti walau berkas penanda sudah dihapus</td><td>Hentikan lewat nomor proses langsung (<span class="mono">kill</span>), jangan membunuh pola nama yang cocok dengan terminal Anda sendiri</td></tr>
+</table>
+
+<!-- ================= DAFTAR PUSTAKA ================= -->
+<h1 class="front" id="pustaka">Daftar Pustaka</h1>
+<p>
+  Buku ini tidak mengutip makalah. Rujukan penyusunnya adalah dokumentasi resmi
+  dari perangkat lunak yang dipakai, yang dapat Anda periksa langsung:
+</p>
+<ol>
+  <li>FastAPI — dokumentasi kerangka kerja web Python. https://fastapi.tiangolo.com</li>
+  <li>React — dokumentasi pustaka antarmuka. https://react.dev</li>
+  <li>SQLite — dokumentasi basis data berkas. https://www.sqlite.org/docs.html</li>
+  <li>Nmap — dokumentasi pemindai jaringan. https://nmap.org/book/man.html</li>
+  <li>Nuclei (ProjectDiscovery) — dokumentasi pemindai templat. https://docs.projectdiscovery.io</li>
+  <li>Amass (OWASP) — dokumentasi enumerasi. https://owasp.org/www-project-amass/</li>
+  <li>AbuseIPDB — dokumentasi API v2. https://docs.abuseipdb.com</li>
+  <li>Dokumentasi bersama perangkat lunak ini: <span class="mono">README.md</span>, <span class="mono">docs/INTEGRATIONS-ENABLE.md</span>, <span class="mono">docs/SECURITY_AUDIT.md</span>, dan <span class="mono">deployment/README.md</span> pada repositori GARDA-CYBER.</li>
+</ol>
+
+<!-- ================= LAMPIRAN A ================= -->
+<h1 class="bab" id="lampA">Lampiran A — Variabel Lingkungan</h1>
+<h2>Berkas backend/.env.example</h2>
+<table id="tbl10">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 10. Variabel lingkungan berkas backend/.env.example</caption>
+  <tr><th style="width:34%">Variabel</th><th>Fungsi</th></tr>
+  <tr><td><span class="mono">APP_ENV</span></td><td>Lingkungan jalan (<span class="mono">development</span> dan sebagainya)</td></tr>
+  <tr><td><span class="mono">APP_HOST</span> / <span class="mono">APP_PORT</span></td><td>Alamat dan port server belakang (bawaan <span class="mono">127.0.0.1:8000</span>)</td></tr>
+  <tr><td><span class="mono">DATABASE_URL</span></td><td>Lokasi basis data SQLite; pakai path absolut agar tidak berpindah</td></tr>
+  <tr><td><span class="mono">FRONTEND_ORIGIN</span></td><td>Asal peramban yang diizinkan CORS (pisah koma)</td></tr>
+  <tr><td><span class="mono">SECRET_KEY</span></td><td>Wajib diisi sebelum produksi</td></tr>
+  <tr><td><span class="mono">DOMAIN_NAME</span></td><td>Nama domain, diisi saat tahap deployment VPS</td></tr>
+  <tr><td><span class="mono">NMAP_BINARY</span></td><td>Path program nmap (bila tidak di <span class="mono">PATH</span>)</td></tr>
+  <tr><td><span class="mono">OWASP_ZAP_URL</span> / <span class="mono">OWASP_ZAP_API_KEY</span></td><td>Alamat daemon ZAP dan kuncinya</td></tr>
+  <tr><td><span class="mono">WAZUH_API_URL</span> / <span class="mono">WAZUH_API_USER</span> / <span class="mono">WAZUH_API_PASSWORD</span></td><td>Alamat server Wazuh dan kredensialnya</td></tr>
+  <tr><td><span class="mono">ABUSEIPDB_API_KEY</span></td><td>Kunci AbuseIPDB; bila diisi, penyedia nyata aktif otomatis</td></tr>
+  <tr><td><span class="mono">DEMO_PROVIDER_ENABLED</span></td><td><span class="mono">true</span> mengaktifkan penyedia contoh; kosongkan bila tidak perlu</td></tr>
+  <tr><td><span class="mono">OSINT_DNS_TIMEOUT_SECONDS</span> / <span class="mono">OSINT_TLS_TIMEOUT_SECONDS</span> / <span class="mono">OSINT_MAX_TXT_RECORDS</span></td><td>Batas waktu dan batas jumlah catatan OSINT</td></tr>
+  <tr><td><span class="mono">GITHUB_TOKEN</span></td><td>Token akses pribadi cakupan baca isi; jangan pernah dikirim ke Git</td></tr>
+  <tr><td><span class="mono">GITHUB_EXPOSURE_ALLOWED_REPOS</span></td><td>Daftar <span class="mono">owner/repo</span> yang boleh dipindai (pisah koma); hanya inilah yang diperiksa</td></tr>
+  <tr><td><span class="mono">GITHUB_MAX_FILES_PER_SCAN</span> / <span class="mono">GITHUB_MAX_FILE_BYTES</span> / <span class="mono">GITHUB_API_TIMEOUT_SECONDS</span></td><td>Batas jumlah berkas, ukuran berkas, dan waktu tunggu pemindaian</td></tr>
+  <tr><td><span class="mono">KARTIKA_LOAD_ENABLED</span> dan batas <span class="mono">KARTIKA_LOAD_*</span></td><td>Alat beban beserta batas atas durasi, untaian, permintaan, rps (dikekang server)</td></tr>
+  <tr><td><span class="mono">KARTIKA_SQLI_PROBE_ENABLED</span> / <span class="mono">KARTIKA_WA_PHISH_ENABLED</span></td><td>Alat probing SQLI dan analisis WhatsApp phishing</td></tr>
+  <tr><td><span class="mono">API_KEY</span></td><td>Kunci API belakang; bila diisi, <span class="mono">/api/v1/*</span> mewajibkan kepala <span class="mono">X-API-Key</span></td></tr>
+  <tr><td><span class="mono">ACCESS_LOG_ENABLED</span> / <span class="mono">ACCESS_LOG_MAX_ROWS</span></td><td>Catatan akses untuk halaman Blue Team dan batas barisnya</td></tr>
+</table>
+
+<h2>Berkas frontend/.env.example</h2>
+<table id="tbl11">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 11. Variabel lingkungan berkas frontend/.env.example</caption>
+  <tr><th style="width:34%">Variabel</th><th>Fungsi</th></tr>
+  <tr><td><span class="mono">VITE_API_BASE_URL</span></td><td>Alamat titik akhir API belakang yang dipakai peramban (variabel depan wajib berawalan <span class="mono">VITE_</span>)</td></tr>
+</table>
+<p class="small">
+  Salinan berkas-berkas ini menjadi <span class="mono">backend/.env</span> dan
+  <span class="mono">frontend/.env.local</span> masing-masing, dibuat otomatis oleh
+  skrip pemasangan bila belum ada.
+</p>
+
+<!-- ================= LAMPIRAN B ================= -->
+<h1 class="bab" id="lampB">Lampiran B — Perintah Dasar</h1>
+<table id="tbl12">
+  <caption class="table-note" style="caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt">Tabel 12. Perintah dasar sehari-hari</caption>
+  <tr><th style="width:44%">Maksud</th><th>Perintah</th></tr>
+  <tr><td>Pasang dan jalankan (Linux/macOS)</td><td><span class="mono">bash setup.sh</span></td></tr>
+  <tr><td>Pasang dan jalankan dengan port lain</td><td><span class="mono">bash setup.sh 8001 5174</span></td></tr>
+  <tr><td>Pasang di Windows</td><td>klik dua kali <span class="mono">setup.bat</span>, atau jalankan di PowerShell</td></tr>
+  <tr><td>Berhenti</td><td><span class="mono">kill $(cat /tmp/garda-cyber-backend.pid) $(cat /tmp/garda-cyber-frontend.pid)</span></td></tr>
+  <tr><td>Isi data demo manual</td><td><span class="mono">cd backend && .venv/bin/python scripts/seed_demo.py --base "http://127.0.0.1:8000" --skip-existing</span></td></tr>
+  <tr><td>Isi data demo dengan OSINT (butuh internet)</td><td>tambahkan <span class="mono">--with-osint</span> pada perintah di atas</td></tr>
+  <tr><td>Jalankan seluruh uji</td><td><span class="mono">cd backend && .venv/bin/python -m pytest -q</span></td></tr>
+  <tr><td>Alat integrasi tambahan tanpa hak sudo</td><td><span class="mono">bash scripts/install_optional_tools.sh</span></td></tr>
+</table>
+
+<!-- ================= LAMPIRAN C ================= -->
+<h1 class="bab" id="lampC">Lampiran C — Kalimat Terkunci dan Label Demo</h1>
+<p>
+  Dua teks berikut merupakan bagian dari perilaku sistem yang disengaja. Keduanya
+  ditulis persis seperti tampil pada aplikan, agar bila Anda menemukannya di
+  layar, Anda tahu artinya dan dari mana asalnya.
+</p>
+<h3>C.1 Kalimat untuk alat terkunci</h3>
+<div class="quote-box">
+  <span class="mono">fitur locked, silahkan hubungi tim Luzsec 1</span>
+</div>
+<p>
+  Muncul pada kelima alat terkunci (Bab 5.4) dan menjadi catatan penolakan bila
+  ada percobaan pembuatan tugas untuk alat-alat itu.
+</p>
+<h3>C.2 Label untuk penyedia contoh</h3>
+<div class="quote-box">
+  <span class="mono">[DATA DEMO -- bukan reputasi nyata]</span>
+</div>
+<p>
+  Menempel pada setiap jawaban alat <span class="mono">ip_reputation</span> ketika
+  kunci API AbuseIPDB belum diisi, bersama kalimat penjelasan pada 5.3. Label
+  ini hilang dengan sendirinya bila kunci asli sudah diisi.
+</p>
+<h3>C.3 Tangkapan sumber dasbor</h3>
+<p>
+  Gambar berikut adalah tangkapan layar dasbor apa adanya, sebelum dipotong
+  menjadi dua segmen untuk keperluan cetak (Gambar 1 dan Gambar 2 pada Bab III).
+  Ditampilkan lengkap di sini supaya Anda dapat memeriksa sendiri isi penuhnya.
+</p>
+<figure id="gbr17">
+  <img style="width:42%" src="images/mb-127.0.0.1_5173-1440x900.png" alt="Dasbor penuh sebelum dipotong">
+  <figcaption>Gambar 17. Dasbor penuh (tangkapan sumber, sebelum dipotong)</figcaption>
+</figure>
+<p style="margin-top:24px" class="small">
+  — Selesai. Buku ini seharusnya tidak memuat janji yang tidak dapat Anda periksa
+  sendiri di layar. Bila Anda menemukan perbedaan antara buku ini dengan apa yang
+  tampil pada versi perangkat lunak Anda, versi perangkat lunak Anda yang benar,
+  dan buku ini perlu disusun ulang untuk versi tersebut.
+</p>
+
+</body>
+</html>
