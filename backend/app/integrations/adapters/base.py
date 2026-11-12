@@ -24,6 +24,10 @@ class IntegrationInfo:
     required_env_vars: list[str]
     capability_summary: str
     implemented: bool = True
+    # Fitur locked: kode adapter ada, tapi sengaja dikunci untuk rilis ini
+    # (butuh server/daemon eksternal atau keputusan product). Jangan dieksekusi.
+    locked: bool = False
+    locked_note: str | None = None
     # Nama binary CLI untuk dicek lewat shutil.which(), mis. "nmap". None = tidak relevan
     # (tool berbasis API/HTTP, bukan CLI lokal -- mis. GitHub, IP reputation provider).
     binary_name: str | None = None
@@ -79,4 +83,6 @@ class BaseIntegrationAdapter(ABC):
             "required_env_vars": self.info.required_env_vars,
             "official_repo": self.info.official_repo,
             "capability_summary": self.info.capability_summary,
+            "locked": self.info.locked,
+            "locked_note": self.info.locked_note,
         }

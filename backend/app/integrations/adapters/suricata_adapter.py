@@ -9,6 +9,8 @@ class SuricataAdapter(BaseIntegrationAdapter):
         official_repo="https://github.com/OISF/suricata",
         required_env_vars=[],  # belum ada kontrak konfigurasi resmi di Tahap 1
         capability_summary="Network intrusion detection",
+        locked=True,
+        locked_note="fitur locked, silahkan hubungi tim Luzsec 1",
     )
 
     def is_configured(self) -> bool:

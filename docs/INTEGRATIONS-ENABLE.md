@@ -7,7 +7,7 @@ Tanggal: 2026-11-06, diperbarui 2026-11-11. Semua langkah di bawah **tanpa sudo*
 
 | Sebelum | Sesudah |
 |---|---|
-| 4 dari 15 aktif (3 Kartika + OSINT) | **9 dari 15 aktif, 9 bisa dijalankan** |
+| 4 dari 15 aktif (3 Kartika + OSINT) | **9 dari 15 jalan nyata, 1 pajangan, 5 locked** |
 
 Tool yang sekarang benar-benar jalan (diverifikasi dengan job nyata, bukan cuma
 status "configured"):
@@ -22,6 +22,7 @@ status "configured"):
 | `kartika_wa_phish` | analisis teks (offline) | completed, skor 6 = TINGGI |
 | `github_exposure` | scan repo `jejakmasgondrong/GARDA-CYBER` | completed, 200 file diperiksa, 0 finding baru (dedup jalan) |
 | `ip_reputation` | lookup `8.8.8.8` | completed, klasifikasi `public`, **dijawab provider demo** (lihat § Mode demo) |
+| `osint_domain` | lookup `example.com` | completed, 4 alamat A/AAAA + MX/NS/TXT + sertifikat TLS Cloudflare (anti-SSRF dijalankan DNS service) |
 
 **Batas waktu yang diakui:** `github_exposure` berjalan sinkron di job manager
 (enggak ada antrian/worker). Scan repo besar memakan waktu menit — job
@@ -58,21 +59,31 @@ echo 'NMAP_BINARY=$HOME/.local/bin/nmap' >> backend/.env
 `NMAP_BINARY` wajib diisi karena `NmapAdapter.is_configured()` membacanya —
 tanpa itu statusnya "belum dikonfigurasi" walau binary ada di PATH.
 
-## Yang tetap tidak bisa diaktifkan tanpa mengubah kode
+## Yang masih pajangan (sigma)
 
-`sigma`, `suricata`, `osquery`, `greenbone` — `is_configured()` di adapter-nya
-**hardcoded `return False`**, dan `execute()` masih memakai default base class
-("belum diimplementasikan"). Jadi keempatnya pajangan, bukan integrasi.
-Untuk mengaktifkan perlu implementasi adapter + sumber data nyata.
+`sigma` — `is_configured()` di adapter-nya **hardcoded `return False`**, dan
+`execute()` masih memakai default base class ("belum diimplementasikan").
+Jadi ia pajangan, bukan integrasi. Untuk mengaktifkan perlu implementasi
+adapter + sumber data nyata.
 
-Butuh server/daemon eksternal (bukan binary, bukan sekadar key):
+## Locked (5 tool)
+
+Lima tool ini punya kode adapter, tapi sengaja dikunci untuk rilis ini
+(kebutuhan server/daemon eksternal atau keputusan product). Job manager
+menolak eksekusinya dengan kalimat yang sama seperti yang tampil di halaman
+Integrations:
+
+> fitur locked, silahkan hubungi tim Luzsec 1
 
 | Tool | Yang dibutuhkan |
 |---|---|
 | `owasp_zap` | ZAP daemon + `OWASP_ZAP_URL` + `OWASP_ZAP_API_KEY` |
-| `wazuh` | server Wazuh + URL + user + password |
+| `wazuh` | server Wazuh + `WAZUH_API_URL` + user + password |
+| `suricata` | engine IDS/IPS terpasang + aturan (belum ada kontrak konfigurasi resmi di Tahap 1) |
+| `osquery` | daemon osquery + konfigurasi query (belum ada kontrak konfigurasi resmi di Tahap 1) |
+| `greenbone` | scanner Greenbone/OpenVAS + kredensial (belum ada kontrak konfigurasi resmi di Tahap 1) |
 
-Total: 9 jalan + 4 pajangan tanpa kode + 2 butuh server eksternal = 15.
+Total: 9 jalan nyata + 1 pajangan (sigma) + 5 locked = 15.
 
 ## Mode demo (ip_reputation)
 

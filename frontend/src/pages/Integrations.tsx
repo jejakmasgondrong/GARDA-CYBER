@@ -104,6 +104,7 @@ export default function Integrations() {
                 <h4 className="text-sm font-semibold text-[var(--gc-text)]">{t.display_name}</h4>
                 <div className="flex shrink-0 items-center gap-1.5">
                   {t.demo_mode && <Badge variant="warning" dot>Mode Demo</Badge>}
+                  {t.locked && <Badge variant="critical" dot>Locked</Badge>}
                   <Badge variant={l.variant} dot>{l.text}</Badge>
                 </div>
               </div>
@@ -112,6 +113,11 @@ export default function Integrations() {
                 <p className="mb-2 rounded-[var(--gc-radius)] border border-[var(--gc-border)] bg-[var(--gc-surface)] px-2.5 py-2 text-[10.5px] leading-relaxed text-[var(--gc-text-secondary)]">
                   Mode demo: API key penyedia belum diset, jadi lookup dijawab
                   provider contoh — bukan data reputasi nyata.
+                </p>
+              )}
+              {t.locked && t.locked_note && (
+                <p className="mb-2 rounded-[var(--gc-radius)] border border-[var(--gc-border)] bg-[var(--gc-surface)] px-2.5 py-2 text-[10.5px] leading-relaxed text-[var(--gc-text-secondary)]">
+                  {t.locked_note}
                 </p>
               )}
               {t.tool_id === 'github_exposure' && (

@@ -26,6 +26,10 @@ export interface IntegrationStatus {
   executable?: boolean;
   // Hanya dikirim adapter yang menjawab dengan data contoh (bukan API nyata).
   demo_mode?: boolean;
+  // Fitur sengaja dikunci untuk rilis ini (kode adapter ada, tapi butuh
+  // server/daemon eksternal atau keputusan product). Jangan dieksekusi.
+  locked?: boolean;
+  locked_note?: string;
 }
 
 export interface HealthResponse {

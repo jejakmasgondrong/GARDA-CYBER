@@ -72,6 +72,12 @@ class JobManagerService:
         job.started_at = datetime.utcnow()
         self.db.commit()
 
+        if adapter.info.locked:
+            # Tool terkunci untuk rilis ini: penolakan mengucapkan kalimat locked
+            # yang sama seperti di halaman Integrations, bukan alasan teknis.
+            note = adapter.info.locked_note or "fitur locked, silahkan hubungi tim Luzsec 1"
+            return self._fail(job, f"{data.tool_id}: {note}")
+
         if not adapter.is_executable():
             reasons = []
             if not adapter.info.implemented:

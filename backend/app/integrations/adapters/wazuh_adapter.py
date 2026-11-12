@@ -10,6 +10,8 @@ class WazuhAdapter(BaseIntegrationAdapter):
         official_repo="https://github.com/wazuh/wazuh",
         required_env_vars=["WAZUH_API_URL", "WAZUH_API_USER", "WAZUH_API_PASSWORD"],
         capability_summary="SIEM / endpoint detection",
+        locked=True,
+        locked_note="fitur locked, silahkan hubungi tim Luzsec 1",
     )
 
     def is_configured(self) -> bool:
