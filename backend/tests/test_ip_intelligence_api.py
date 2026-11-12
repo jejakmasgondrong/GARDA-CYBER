@@ -16,13 +16,23 @@ def test_lookup_public_ip_without_configured_provider_returns_not_configured(cli
     from app.core.config import Settings
 
     empty_settings = Settings(ABUSEIPDB_API_KEY="", DATABASE_URL="sqlite:///./garda_cyber_test.db")
+    demo_off_settings = Settings(DEMO_PROVIDER_ENABLED=False, DATABASE_URL="sqlite:///./garda_cyber_test.db")
 
     unconfigured_abuseipdb = AbuseIpdbProvider()
     unconfigured_demo = DemoIpProvider()
 
     monkeypatch.setattr(ip_lookup_service, "_PROVIDERS", [unconfigured_abuseipdb, unconfigured_demo])
 
-    with patch("app.integrations.providers.abuseipdb_provider.get_settings", return_value=empty_settings):
+    # .env pengembang boleh menyalakan demo provider; tes ini mengharapkan
+    # demo MATI agar NOT_CONFIGURED teruji secara hermetik, bukan bergantung
+    # pada isi .env mesin ini.
+    with patch(
+        "app.integrations.providers.abuseipdb_provider.get_settings",
+        return_value=empty_settings,
+    ), patch(
+        "app.integrations.providers.demo_provider.get_settings",
+        return_value=demo_off_settings,
+    ):
         res = client.post("/api/v1/ip-intelligence/lookup", json={"ip_address": "8.8.8.8"})
 
     assert res.status_code == 201

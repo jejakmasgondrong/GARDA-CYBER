@@ -42,7 +42,7 @@ GARDA-CYBER/
         providers/      kontrak provider IP reputation + DemoIpProvider
         registry.py     daftar pusat semua adapter/provider
       main.py           entry point FastAPI
-    tests/              35 test — lihat bagian "Hasil Pengujian"
+    tests/              114 test — lihat bagian "Hasil Pengujian"
     requirements.txt / pytest.ini / .env.example
   frontend/
     src/
@@ -207,13 +207,16 @@ diisi sendiri di `.env`.
 
 **Backend — `python -m pytest -q`:**
 ```
-72 passed, 61 warnings in 0.47s
+114 passed, 63 warnings in 8.38s
 ```
-Rincian: test_health (1), test_assets (2), test_integrations_registry (3),
-test_ip_classification + test_ip_intelligence_api + test_redaction (16),
-test_findings (6), test_incidents (4), test_audit_logs (2),
-test_osint_dns_safety (11), test_osint_tls_service (2), test_osint_api (7),
-**test_secret_patterns (5, baru)**, **test_github_exposure_service (13, baru)**.
+Rincian per file (19 file, 114 test): test_kartika_probe_wa (16),
+test_abuseipdb_provider (13), test_osint_dns_safety (12),
+test_ip_classification (12), test_github_exposure_service (11),
+test_kartika_load_adapter (9), test_osint_api (7), test_findings (6),
+test_secret_patterns (5), test_ip_intelligence_api (4), test_incidents (4),
+test_access_log_and_api_key (3), test_redaction (2),
+test_osint_tls_service (2), test_integrations_registry (2), test_health (2),
+test_audit_logs (2), test_kartika_crash_stub (1), test_assets (1).
 
 **Frontend — `npm run build`:**
 ```
@@ -222,11 +225,12 @@ test_osint_dns_safety (11), test_osint_tls_service (2), test_osint_api (7),
 ```
 TypeScript check (`tsc -b`) dan production build Vite lolos tanpa error.
 
-**NOT RUN:** `npm run lint` (tidak ada script lint di `package.json`, tidak
-ditambahkan pada pass ini agar tidak mengubah konfigurasi di luar scope),
-pengujian integrasi dengan internet nyata untuk OSINT/GitHub (belum
-diimplementasikan), pengujian Docker Compose end-to-end (Docker tidak
-tersedia di lingkungan kerja sesi ini — hanya diperiksa sintaksnya manual).
+**NOT RUN:** `npm run lint` (tidak ada script lint di `package.json`),
+pengujian Docker Compose end-to-end (Docker tidak tersedia di lingkungan
+kerja sesi ini — hanya diperiksa sintaksnya manual), dan pengujian otomatis
+dengan API key/host eksternal nyata (AbuseIPDB, nmap ke host jarak jauh,
+GitHub repo publik) — adapter jalan tetapi credential/host eksternal tidak
+ada di mesin ini.
 
 ## 8. Konfigurasi yang Harus Diisi Sendiri
 

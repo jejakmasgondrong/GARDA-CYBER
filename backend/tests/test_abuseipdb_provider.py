@@ -246,6 +246,13 @@ def test_service_falls_back_to_demo_when_abuseipdb_not_configured(mock_gs, mock_
     mengembalikan NOT_CONFIGURED dari lookup()-nya sendiri."""
     mock_gs.return_value = _mock_settings(ABUSEIPDB_API_KEY="")
     monkeypatch.delenv("DEMO_PROVIDER_ENABLED", raising=False)
+    # .env pengembang boleh menyalakan demo provider; tes ini mengharapkan
+    # DEMO_PROVIDER_ENABLED mati agar fallback ke AbuseIPDB (NOT_CONFIGURED)
+    # teruji secara hermetik, bukan bergantung pada isi .env mesin ini.
+    from app.integrations.providers import demo_provider
+    monkeypatch.setattr(
+        demo_provider, "get_settings", lambda: _mock_settings(DEMO_PROVIDER_ENABLED=False)
+    )
 
     from app.services import ip_lookup_service
     unconfigured_abuseipdb = AbuseIpdbProvider()
