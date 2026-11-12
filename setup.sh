@@ -11,7 +11,8 @@
 #   3. Instal dependensi backend (requirements.txt) + frontend (npm install).
 #   4. Salin .env contoh kalau belum ada (TIDAK menimpa .env yang sudah ada).
 #   5. Jalankan backend + frontend di latar belakang, tunggu health check,
-#      lalu buka browser ke halaman depan.
+#      isi data demo otomatis (kalau database masih kosong), lalu buka browser
+#      ke halaman depan.
 #
 # Port bisa diubah (berguna kalau port default sudah dipakai):
 #   bash setup.sh [port_backend] [port_frontend]      # default 8000 5173
@@ -19,9 +20,6 @@
 # Berhenti:
 #   kill $(cat /tmp/garda-cyber-backend.pid) $(cat /tmp/garda-cyber-frontend.pid)
 #   atau: pkill -f "uvicorn app.main:app" ; pkill -f vite
-#
-# Data demo (opsional, setelah server hidup):
-#   cd backend && .venv/bin/python scripts/seed_demo.py
 set -u
 
 BACKEND_PORT="${1:-8000}"
@@ -128,6 +126,19 @@ if [ "$BACKEND_READY" -ne 1 ]; then
   exit 1
 fi
 
+# Isi data demo otomatis (idempoten: --skip-existing lewati kalau database
+# sudah terisi). Seed lewat HTTP endpoint yang sama dengan manusia, tanpa
+# --with-osint (offline-safe). Kegagalan seed = peringatan, setup tetap jalan.
+echo "[INFO] Mengisi data demo (kalau database masih kosong)..."
+if ( cd backend && .venv/bin/python scripts/seed_demo.py \
+      --base "http://127.0.0.1:$BACKEND_PORT" --skip-existing ); then
+  :
+else
+  echo ""
+  echo "[WARN] Data demo GAGAL diisi -- server tetap jalan, dashboard mungkin kosong."
+  echo "       Coba lagi nanti: cd backend && .venv/bin/python scripts/seed_demo.py"
+fi
+
 # Buka browser ke halaman depan (xdg-open = Linux, open = macOS).
 # Di mesin tanpa DISPLAY (headless/SSH) langkah ini dilewati -- URL tetap dicetak.
 if [ -n "${DISPLAY:-}" ]; then
@@ -148,9 +159,6 @@ echo "   - Frontend: http://localhost:$FRONTEND_PORT"
 echo ""
 echo "   Log    : $LOG_BACKEND  |  $LOG_FRONTEND"
 echo "   PID    : $(cat "$PID_BACKEND") (backend)  |  $(cat "$PID_FRONTEND") (frontend)"
-echo ""
-echo "   Data demo (opsional), setelah kedua server hidup:"
-echo "     cd backend && .venv/bin/python scripts/seed_demo.py"
 echo ""
 echo "   Hentikan:"
 echo "     kill \$(cat /tmp/garda-cyber-backend.pid) \$(cat /tmp/garda-cyber-frontend.pid)"

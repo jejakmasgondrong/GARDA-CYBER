@@ -55,6 +55,11 @@ start "GARDA-CYBER Frontend" /d "%~dp0frontend" cmd /k "npm run dev"
 timeout /t 8 /nobreak >nul
 
 echo.
+echo Mengisi data demo (kalau database masih kosong)...
+backend\.venv\Scripts\python.exe scripts\seed_demo.py --base http://127.0.0.1:8000 --skip-existing
+if errorlevel 1 echo [WARN] Data demo GAGAL diisi -- server tetap jalan, dashboard mungkin kosong.
+
+echo.
 echo Membuka http://localhost:5173 ...
 start http://localhost:5173
 
@@ -63,11 +68,6 @@ echo ============================================
 echo   Setup selesai. Dua jendela baru sudah terbuka:
 echo    - Backend  : http://localhost:8000  (dokumentasi: /docs)
 echo    - Frontend : http://localhost:5173
-echo.
-echo   Data demo (opsional), setelah kedua server hidup:
-echo     cd backend
-echo     .venv\Scripts\activate
-echo     python scripts\seed_demo.py
 echo.
 echo   Hentikan: tutup kedua jendela tadi.
 echo ============================================

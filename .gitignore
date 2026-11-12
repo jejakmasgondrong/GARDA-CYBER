@@ -6,6 +6,7 @@ backend/blueteam.env
 *.env.local
 *.env.*.local
 *.db
+*.db.bak*
 *.sqlite3
 *.log
 
