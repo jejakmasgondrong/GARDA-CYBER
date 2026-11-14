@@ -40,7 +40,7 @@
       "title": "Red Team: Tool Catalog & Integrasi Nyata",
       "bullets": [
         "Katalog tool dari registry di halaman Red Team.",
-        "6 tool executable dari halaman Integrasi: nmap, nuclei, amass, kartika_load, kartika_sqli_probe, kartika_wa_phish.",
+        "9 dari 15 integrasi jalan nyata (bukti job nyata): nmap, nuclei, amass, kartika_load, kartika_sqli_probe, kartika_wa_phish, osint_domain, github_exposure, ip_reputation (mode demo).",
         "Eksekusi lewat job API: POST /api/v1/jobs, status dilacak sampai completed.",
         "GitHub Exposure Monitor: scan repo langsung dari UI."
       ]
@@ -58,18 +58,18 @@
       "title": "Bukti Fungsional",
       "bullets": [
         "114 test backend passed (pytest).",
-        "7 dari 15 integrasi aktif, 6 executable terbukti jalan.",
+        "9 dari 15 integrasi jalan nyata (dibuktikan job nyata); 1 pajangan (sigma), 5 locked.",
         "Job nyata: kartika_load 8 request di 9,5 rps, selesai dan tercatat di audit log.",
-        "Seed demo hidup: 7 aset, 8 findings, 4 insiden."
+        "Seed demo hidup: 5 aset, 8 findings, 4 insiden, 2 job kartika_wa_phish completed."
       ]
     },
     {
       "title": "Batas yang Diakui (Roadmap)",
       "bullets": [
         "Autentikasi dan manajemen role belum dibangun.",
-        "Adapter OSINT dan GitHub Exposure belum berisi kode (terdaftar di registry).",
+        "Eksekusi nmap nyata belum disambungkan ke frontend Red Team; ZAP, Wazuh, Suricata, Sigma, osquery, Greenbone masih entri registry (configured: false).",
         "Hasil run Kartika belum otomatis membuat Finding.",
-        "Halaman Laporan masih empty state, menunggu data finding/insiden lebih banyak."
+        "ip_reputation tanpa AbuseIPDB key = data demo (dilabel [DATA DEMO]); github_exposure scan sinkron bisa menit untuk repo besar."
       ]
     },
     {
@@ -86,7 +86,7 @@
       "bullets": [
         "GARDA-CYBER: satu platform untuk operasi keamanan siber yang jujur datanya.",
         "Repo publik: github.com/jejakmasgondrong/GARDA-CYBER",
-        "Dokumentasi lengkap: README + 9 dokumen di folder docs/."
+        "Dokumentasi lengkap: README + 10 dokumen + manual book di folder docs/."
       ]
     }
   ]
