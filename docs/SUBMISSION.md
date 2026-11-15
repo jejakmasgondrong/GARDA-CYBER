@@ -25,11 +25,14 @@ di formulir kalau ternyata kategorinya berbeda.
 | 4 | Video YouTube ≤10 menit | ⏭️ bukan bagian kita (tim lain) | — |
 | 5 | Slide penjelasan | ✅ PPTX 11 slide | `submission/GARDA-CYBER-slide-penjelasan.pptx` |
 
-Tidak ada .exe: rulebook tidak mewajibkan executable; link download repo +
-Docker Compose sudah memenuhi syarat link karya. Juri di Windows tanpa Docker
-bisa pakai `setup.bat` (double-click) — instal dependensi + jalankan backend
-+ frontend otomatis. Di Linux/macOS tinggal `bash setup.sh` (perilaku sama,
-port bisa diubah: `bash setup.sh 8001 5174`).
+Tidak ada .exe di repo: rulebook tidak mewajibkan executable; link download
+repo + Docker Compose sudah memenuhi syarat link karya. Release v0.5.3
+melampirkan `GARDA-CYBER.exe` (bundle Windows, hasil scan ClamAV bersih —
+lihat `SECURITY-SCAN.md`) + `tools.zip` (nmap/nuclei/amass) sebagai bonus
+untuk juri Windows tanpa Docker. Jalur utama tetap `setup.bat`
+(double-click) — instal dependensi + jalankan backend + frontend otomatis.
+Di Linux/macOS tinggal `bash setup.sh` (perilaku sama, port bisa diubah:
+`bash setup.sh 8001 5174`).
 
 ## Urutan upload di platform
 
