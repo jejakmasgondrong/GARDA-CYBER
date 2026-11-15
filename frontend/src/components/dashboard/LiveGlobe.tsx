@@ -108,7 +108,7 @@ function GlobeInner({ targets, activeCount, unlocated, backendDown }: LiveGlobeP
       g.pointOfView({ lat: latest.lat, lng: latest.lng, altitude: 1.9 }, ms);
     } else {
       controls.autoRotate = !reduced;
-      controls.autoRotateSpeed = 0.12;
+      controls.autoRotateSpeed = 0.24;
       g.pointOfView({ lat: HOME.lat, lng: HOME.lng, altitude: 2.4 }, ms);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
