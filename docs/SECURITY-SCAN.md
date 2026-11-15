@@ -43,9 +43,13 @@ untuk submission hackathon, sebelum apa pun di-extract atau di-upload.
 
 ## Aset release v0.5.3 (fork PUBLIC jejakmasgondrong/GARDA-CYBER)
 
-- `GARDA-CYBER.exe` (34,569,424 B) — aplikasi demo Windows, hasil scan bersih.
-- `tools.zip` (275,822,438 B, 1,725 file) — amass.exe, nmap/, nuclei.exe, hasil scan bersih.
 - `Manual-Book-GARDA-CYBER.pdf` (4,638,676 B) — manual book v0.5.3.
+- `tools.zip` (275,822,438 B, 1,725 file) — amass.exe, nmap/, nuclei.exe, hasil scan bersih.
+
+Catatan 2026-11-15: `GARDA-CYBER.exe` (34,569,424 B) dihapus dari release atas
+permintaan pemilik — seluruh dokumentasi kini mengarahkan instal resmi ke
+`setup.bat` (Windows) / `bash setup.sh` (Linux/macOS). Bukti scan di file ini
+tetap berlaku sebagai arsip forensik isi zip kiriman kawan.
 
 ## Bukti mentah
 
