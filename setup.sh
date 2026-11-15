@@ -93,17 +93,28 @@ fi
 echo "[4/4] Menjalankan server..."
 
 # Kalau PID lama masih hidup, matikan dulu agar port tidak bentrok.
+# pkill -P ikut mematikan anak-anaknya (uvicorn --reload worker, vite
+# hasil spawn npm) supaya tidak ada proses yatim yang pegang port.
 for f in "$PID_BACKEND" "$PID_FRONTEND"; do
   if [ -f "$f" ] && kill -0 "$(cat "$f")" 2>/dev/null; then
-    echo "[INFO] Server lama masih hidup (PID $(cat "$f")) -- dimatikan dulu."
-    kill "$(cat "$f")" 2>/dev/null
+    p="$(cat "$f")"
+    echo "[INFO] Server lama masih hidup (PID $p) -- dimatikan dulu."
+    pkill -TERM -P "$p" 2>/dev/null
+    kill "$p" 2>/dev/null
     sleep 1
   fi
 done
 
-( cd backend && nohup .venv/bin/python -m uvicorn app.main:app --reload \
+# Catatan: "&" wajib mengikat perintah nohup saja (setelah ";"), bukan seluruh
+# list "cd && nohup". Kalau "&" di belakang AND-list, $! = PID subshell, bukan
+# PID server -- pidfile jadi salah dan instruksi "kill $(cat pidfile)" tidak
+# mematikan server (ditemukan saat live test 2026-11-15).
+( cd backend || exit 1; nohup .venv/bin/python -m uvicorn app.main:app --reload \
     --host 127.0.0.1 --port "$BACKEND_PORT" </dev/null >"$LOG_BACKEND" 2>&1 & echo $! >"$PID_BACKEND" )
-( cd frontend && nohup npm run dev -- --host 127.0.0.1 --port "$FRONTEND_PORT" \
+# Frontend diluncurkan via binary vite langsung (package.json "dev" cuma "vite"),
+# bukan lewat npm, supaya pidfile berisi PID vite asli -- kill satu baris di banner
+# benar-benar mematikan server, tanpa anak npm yang yatim.
+( cd frontend || exit 1; nohup ./node_modules/.bin/vite --host 127.0.0.1 --port "$FRONTEND_PORT" \
     </dev/null >"$LOG_FRONTEND" 2>&1 & echo $! >"$PID_FRONTEND" )
 
 echo "Menunggu backend siap (maks 30 detik)..."
