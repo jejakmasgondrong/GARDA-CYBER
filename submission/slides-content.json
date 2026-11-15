@@ -5,88 +5,195 @@
     {
       "title": "Masalah",
       "bullets": [
-        "Operasi keamanan tersebar di banyak tool: satu tool untuk scan, satu untuk asset, satu untuk insiden.",
-        "Finding dan insiden tidak terhubung ke aset, sehingga prioritas perbaikan sulit diputuskan.",
-        "Integrasi tool keamanan membutuhkan instalasi manual satu per satu, tanpa status yang jujur."
+        "Operasi keamanan tersebar di banyak tool: scan, aset, insiden tidak terhubung.",
+        "Finding tidak terikat aset, prioritas perbaikan sulit diputuskan.",
+        "Integrasi tool butuh instalasi manual tanpa status jujur.",
+        "Data mockup menyamar jadi bukti demo."
       ]
     },
     {
       "title": "Solusi: Satu Platform Modular",
       "bullets": [
-        "Satu dashboard untuk operasi blue team maupun red team.",
-        "Aset, temuan, dan insiden terhubung dalam satu basis data.",
-        "Integrasi registry: status tiap tool jujur (implemented vs configured).",
-        "Tidak ada data palsu: workspace kosong menampilkan empty state, bukan metrik rekaan."
+        "!Satu dashboard untuk blue team dan red team.",
+        "Aset, temuan, insiden terhubung di satu basis data.",
+        "Integrasi registry jujur: implemented vs configured.",
+        "Empty state nyata, bukan metrik rekaan.",
+        "SQLite file tunggal: portabel, tanpa server database."
       ]
     },
     {
-      "title": "Blue Team: Insiden & Temuan",
+      "title": "Dashboard & Asset Inventory",
       "bullets": [
-        "Manajemen insiden: CRUD lengkap dengan tabel dan empty state nyata.",
-        "Findings dari semua sumber dengan deduplikasi kunci agar tidak ganda.",
-        "Audit log otomatis tercatat setiap create/update finding dan insiden."
+        "Overview terhubung ke /health dan /assets nyata.",
+        "Asset Inventory: CRUD penuh lewat API nyata.",
+        "!Seed demo hidup: 5 aset, 8 findings, 4 insiden.",
+        "2 job kartika_wa_phish completed tersimpan.",
+        "16 halaman frontend: 15 fitur + NotFound."
       ]
     },
     {
-      "title": "Intelijen: IP & Attack Surface",
+      "title": "IP Intelligence (Prioritas A)",
       "bullets": [
-        "IP Intelligence: klasifikasi IPv4/IPv6 lengkap (private, reserved, loopback, multicast, dst).",
-        "Scope enforcement di backend, bukan hanya di frontend.",
-        "Attack Surface: OSINT domain (DNS + TLS lookup) dengan penegakan anti-SSRF di backend.",
-        "Riwayat lookup tersimpan di basis data dengan pagination."
+        "Klasifikasi IPv4/IPv6 lengkap: private, reserved, loopback, multicast, link-local, lainnya.",
+        "!Scope enforcement di backend, bukan cuma frontend.",
+        "Provider demo berlabel jelas [DATA DEMO].",
+        "History lookup tersimpan di DB + pagination.",
+        "Solid sejak pass awal, tidak butuh perbaikan besar."
       ]
     },
     {
-      "title": "Red Team: Tool Catalog & Integrasi Nyata",
+      "title": "Attack Surface: OSINT Domain",
+      "bullets": [
+        "DNS A/AAAA/MX/NS/TXT + sertifikat TLS dalam satu lookup.",
+        "!Tanpa API key eksternal: dnspython + ssl/socket.",
+        "Anti-SSRF: satu IP non-publik, seluruh lookup ditolak.",
+        "Anti DNS-rebinding: connect ke IP tervalidasi, bukan hostname.",
+        "!21 test OSINT, semua mock tanpa internet.",
+        "Contoh nyata: example.com, record lengkap + TLS Cloudflare."
+      ]
+    },
+    {
+      "title": "Vulnerability Management",
+      "bullets": [
+        "Findings dari semua sumber dengan filter + pagination.",
+        "!Dedupe key mencegah finding duplikat.",
+        "Audit log otomatis tiap create/update finding.",
+        "Form Scan Repo: hasil langsung muncul di tabel sama.",
+        "Temuan kredensial masuk kategori secret_exposure."
+      ]
+    },
+    {
+      "title": "GitHub Exposure Monitor",
+      "bullets": [
+        "!7 pola kredensial: AWS, GitHub PAT, Slack, private key, Google API, Stripe, generic.",
+        "Allowlist repo wajib: defense-in-depth di luar scope token.",
+        "!Redaksi: kredensial match tidak pernah disimpan utuh.",
+        "Token tidak bocor ke Finding, AuditLog, respons API.",
+        "Status jujur: not_configured, rejected_scope, error, completed.",
+        "!11 test, semua mock tanpa token asli."
+      ]
+    },
+    {
+      "title": "Incident Management",
+      "bullets": [
+        "CRUD insiden dari nol: model, schema, service, API, test, UI.",
+        "Tabel + empty state nyata di halaman Blue Team.",
+        "Terhubung ke /incidents API nyata.",
+        "!Audit log tercatat tiap create/update insiden.",
+        "Prioritas D brief Tahap 2: diimplementasikan penuh."
+      ]
+    },
+    {
+      "title": "Blue Team",
+      "bullets": [
+        "IP Intelligence + OSINT domain untuk deteksi dini.",
+        "Findings + insiden dalam satu alur kerja terpadu.",
+        "Audit Logs terhubung ke /audit-logs nyata.",
+        "!Audit log tidak pernah mencatat header Authorization.",
+        "Dibuktikan test: test_audit_log_does_not_leak_secrets."
+      ]
+    },
+    {
+      "title": "Red Team: Tool Catalog",
       "bullets": [
         "Katalog tool dari registry di halaman Red Team.",
-        "9 dari 15 integrasi jalan nyata (bukti job nyata): nmap, nuclei, amass, kartika_load, kartika_sqli_probe, kartika_wa_phish, osint_domain, github_exposure, ip_reputation (mode demo).",
-        "Eksekusi lewat job API: POST /api/v1/jobs, status dilacak sampai completed.",
-        "GitHub Exposure Monitor: scan repo langsung dari UI."
+        "Status jujur per tool: implemented vs configured.",
+        "!Eksekusi scan nyata dari UI belum disambungkan.",
+        "Nmap adapter terdaftar; endpoint eksekusi + allowlist menunggu.",
+        "!5 locked: fitur locked, silahkan hubungi tim Luzsec 1."
+      ]
+    },
+    {
+      "title": "Red Team: 9 Integrasi Jalan Nyata",
+      "bullets": [
+        "!9 dari 15 jalan nyata, dibuktikan job completed.",
+        "nmap -sV 127.0.0.1: completed, versi terdeteksi.",
+        "nuclei ke API sendiri: openapi, swagger-api, uvicorn.",
+        "amass + osint_domain example.com: DNS lengkap + TLS Cloudflare.",
+        "kartika_load: 8 req @ 9,5 rps, p50 190 ms, RATE_LIMIT_MISSING.",
+        "kartika_sqli_probe TANPA_SINYAL 0/100; kartika_wa_phish skor 6 TINGGI."
+      ]
+    },
+    {
+      "title": "Job Manager",
+      "bullets": [
+        "Eksekusi lewat job API: POST /api/v1/jobs.",
+        "Status dilacak sampai completed.",
+        "Ringkasan hasil tercatat di audit log.",
+        "!Job manager menolak job ke tool locked.",
+        "Execution Engine penuh untuk tool ofensif: belum."
+      ]
+    },
+    {
+      "title": "Integrations, Reports, Audit, Settings",
+      "bullets": [
+        "Integrations: status jujur + installer tanpa sudo.",
+        "!ip_reputation tanpa key = [DATA DEMO], berlabel jelas.",
+        "Reports: empty state jujur, menunggu data lebih banyak.",
+        "Settings: halaman dasar, belum ada manajemen user/role.",
+        "9 jalan nyata + 1 pajangan (sigma) + 5 locked."
       ]
     },
     {
       "title": "Arsitektur",
       "bullets": [
-        "Backend: FastAPI + SQLAlchemy + SQLite (file tunggal, portabel).",
-        "Frontend: React + Vite + Tailwind, API client terpusat.",
-        "Adapter registry: satu daftar pusat untuk adapter dan provider.",
-        "Deployment: Docker Compose (backend + frontend), instruksi Windows PowerShell di README."
+        "Backend FastAPI + SQLAlchemy + SQLite file tunggal.",
+        "!10 router API domain + 14 modul service.",
+        "Frontend React + Vite + Tailwind, API client terpusat.",
+        "Adapter registry: satu daftar adapter + provider.",
+        "Docker Compose lokal; tanpa expose port publik."
       ]
     },
     {
       "title": "Bukti Fungsional",
       "bullets": [
-        "114 test backend passed (pytest).",
-        "9 dari 15 integrasi jalan nyata (dibuktikan job nyata); 1 pajangan (sigma), 5 locked.",
-        "Job nyata: kartika_load 8 request di 9,5 rps, selesai dan tercatat di audit log.",
-        "Seed demo hidup: 5 aset, 8 findings, 4 insiden, 2 job kartika_wa_phish completed."
+        "!114 test backend passed, 63 warnings, 19 file.",
+        "Build frontend: 1587 modul dalam 3,57 detik.",
+        "tsc -b + Vite production build tanpa error.",
+        "!OSINT 21 test + GitHub Exposure 11 test, semua mock.",
+        "Job nyata terekam: kartika_load + kartika_wa_phish completed."
       ]
     },
     {
-      "title": "Batas yang Diakui (Roadmap)",
+      "title": "Batas yang Diakui",
       "bullets": [
-        "Autentikasi dan manajemen role belum dibangun.",
-        "Eksekusi nmap nyata belum disambungkan ke frontend Red Team; ZAP, Wazuh, Suricata, Sigma, osquery, Greenbone masih entri registry (configured: false).",
-        "Hasil run Kartika belum otomatis membuat Finding.",
-        "ip_reputation tanpa AbuseIPDB key = data demo (dilabel [DATA DEMO]); github_exposure scan sinkron bisa menit untuk repo besar."
+        "Tanpa autentikasi: jangan expose ke jaringan publik.",
+        "Nmap live-scan dari UI belum; Execution Engine belum.",
+        "OT/ICS simulation belum dibangun.",
+        "ip_reputation tanpa key = [DATA DEMO]; sigma pajangan.",
+        "github_exposure sinkron ~2 menit untuk repo besar.",
+        "!Hasil run Kartika belum otomatis membuat Finding."
       ]
     },
     {
-      "title": "Cara Menjalankan",
+      "title": "Cara Menjalankan 1: Persiapan",
       "bullets": [
-        "Clone repo, jalankan backend (uvicorn port 8000) lalu frontend (vite port 5173).",
-        "Atau satu perintah: docker compose up.",
-        "Isi backend/.env dari .env.example; tanpa data palsu di mana pun.",
-        "Test: python -m pytest -q di folder backend."
+        "Satu klik: setup.sh atau setup.bat (Windows double-click).",
+        "Cek Python 3.11+ dan Node 20+ di PATH.",
+        "Matikan server lama via pidfile otomatis.",
+        "!Auto-pick port: 8001, 8002 dst bila 8000/5173 sibuk.",
+        "Port argumen eksplisit dihormati; sibuk = error jelas.",
+        "FRONTEND_ORIGIN ikut berubah (CORS tanpa vite proxy)."
+      ]
+    },
+    {
+      "title": "Cara Menjalankan 2: Verifikasi",
+      "bullets": [
+        "!Health check /api/v1/health menjawab status ok.",
+        "UI http://localhost:5173, API http://localhost:8000.",
+        "Seed idempoten: Sudah ada 5 aset bertanda [seed].",
+        "Stop bersih via pidfile; setup ulang otomatis aman.",
+        "Test: python -m pytest -q + npm run build."
       ]
     },
     {
       "title": "Penutup",
       "bullets": [
-        "GARDA-CYBER: satu platform untuk operasi keamanan siber yang jujur datanya.",
+        "GARDA CYBER: platform operasi keamanan siber modular.",
+        "Data jujur: yang jalan ditunjukkan, yang belum diakui.",
         "Repo publik: github.com/jejakmasgondrong/GARDA-CYBER",
-        "Dokumentasi lengkap: README + 10 dokumen + manual book di folder docs/."
+        "Docs: README + 10 dokumen + manual book.",
+        "!Satu vertical slice solid per pass: diuji, terdokumentasi."
       ]
     }
   ]
