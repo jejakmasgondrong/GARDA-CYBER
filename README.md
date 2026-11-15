@@ -15,9 +15,13 @@ sumber data nyata menampilkan empty state ("belum ada data"), bukan metrik rekaa
 - Docker Desktop (opsional, untuk deployment lokal via Compose)
 - Instruksi di bawah ditulis untuk **Windows PowerShell**
 - **Cara cepat (Windows):** double-click `setup.bat` — cek Python + Node,
-  instal dependensi, lalu jalankan backend + frontend otomatis
+  instal dependensi, pilih port bebas otomatis, lalu jalankan backend +
+  frontend + seed demo otomatis
 - **Cara cepat (Linux/macOS):** `bash setup.sh` — perilaku sama seperti
   `setup.bat`. Port bisa diubah: `bash setup.sh 8001 5174`
+- Kalau port default (8000/5173) sedang dipakai aplikasi lain, setup naik
+  otomatis ke port berikutnya (8001/5174, dst) — tidak tubruk, tidak perlu
+  edit file apa pun (lihat subsection "Satu Klik" di bagian 3)
 
 ## 2. Struktur Proyek
 
@@ -57,7 +61,52 @@ GARDA-CYBER/
 
 ## 3. Menjalankan di Windows (PowerShell)
 
-### Backend
+### Satu Klik (setup.sh / setup.bat)
+
+Cara termudah — satu perintah menyiapkan sekaligus menjalankan semua:
+
+- Windows: double-click `setup.bat`
+- Linux/macOS: `bash setup.sh`
+
+Urutan yang dijalankan:
+
+1. Cek Python 3.11+ dan Node.js 20+ ada di PATH.
+2. Matikan server GARDA lama (kalau pidfile masih hidup) supaya port lepas.
+3. Pilih port bebas — naik otomatis (8001, 8002, dst) kalau default
+   (8000/5173) sedang dipakai aplikasi lain. Port via argumen eksplisit
+   dihormati apa adanya: kalau sibuk, setup berhenti dengan pesan error
+   (tidak ditebak ulang).
+4. Buat virtual environment backend (kalau belum ada).
+5. Instal dependensi backend (pip) + frontend (npm install).
+6. Salin `.env` contoh kalau belum ada (TIDAK menimpa `.env` yang sudah ada).
+7. Sesuaikan port: `VITE_API_BASE_URL` di `frontend/.env.local` +
+   `FRONTEND_ORIGIN` di `backend/.env` (CORS backend — tidak ada vite proxy,
+   jadi baris ini wajib cocok dengan port frontend).
+8. Jalankan backend (dari folder `backend/`) + frontend di latar belakang.
+9. Tunggu health check backend (maks 30 detik), lalu isi data demo
+   (`--skip-existing` — idempoten, database yang sudah terisi tidak ditimpa).
+10. Buka browser ke halaman depan.
+
+Port khusus (opsional):
+
+```bash
+bash setup.sh 8001 5174   # Linux/macOS
+```
+
+Di Windows, edit dua baris `set "BACKEND_PORT=..."` / `set "FRONTEND_PORT=..."`
+di dalam `setup.bat`.
+
+Berhenti:
+
+- Linux/macOS:
+  `kill $(cat /tmp/garda-cyber-backend.pid) $(cat /tmp/garda-cyber-frontend.pid)`
+- Windows: tutup dua jendela console yang terbuka.
+
+Catatan: setup berikutnya otomatis mematikan server lama yang masih
+terdaftar di pidfile, jadi tidak perlu berhenti manual sebelum menjalankan
+ulang.
+
+### Backend (manual)
 ```powershell
 cd backend
 python -m venv .venv

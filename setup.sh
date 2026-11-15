@@ -7,15 +7,25 @@
 #
 # Yang dilakukan:
 #   1. Cek Python 3.11+ dan Node.js 20+ ada di PATH.
-#   2. Buat virtual environment backend (kalau belum ada).
-#   3. Instal dependensi backend (requirements.txt) + frontend (npm install).
-#   4. Salin .env contoh kalau belum ada (TIDAK menimpa .env yang sudah ada).
-#   5. Jalankan backend + frontend di latar belakang, tunggu health check,
+#   2. Matikan server GARDA lama (kalau pidfile masih hidup) agar port lepas.
+#   3. Pilih port bebas -- naik otomatis (8001, 8002, ...) kalau default sibuk.
+#   4. Buat virtual environment backend (kalau belum ada).
+#   5. Instal dependensi backend (requirements.txt) + frontend (npm install).
+#   6. Salin .env contoh kalau belum ada (TIDAK menimpa .env yang sudah ada),
+#      lalu sesuaikan port di frontend/.env.local + FRONTEND_ORIGIN di
+#      backend/.env supaya CORS ikut benar.
+#   7. Jalankan backend + frontend di latar belakang, tunggu health check,
 #      isi data demo otomatis (kalau database masih kosong), lalu buka browser
 #      ke halaman depan.
 #
 # Port bisa diubah (berguna kalau port default sudah dipakai):
 #   bash setup.sh [port_backend] [port_frontend]      # default 8000 5173
+#
+# Kalau port default sedang dipakai aplikasi lain (misalnya service di 8000),
+# setup.sh otomatis memakai port bebas berikutnya (8001, 8002, ...) -- jadi
+# satu kali klik jalan semua tanpa tubruk. Port yang diberikan eksplisit via
+# argumen dihormati apa adanya: kalau sibuk, setup.sh berhenti dengan pesan
+# error (pilihan port tidak ditebak ulang).
 #
 # Berhenti:
 #   kill $(cat /tmp/garda-cyber-backend.pid) $(cat /tmp/garda-cyber-frontend.pid)
@@ -24,6 +34,8 @@ set -u
 
 BACKEND_PORT="${1:-8000}"
 FRONTEND_PORT="${2:-5173}"
+BACKEND_EXPLICIT="${1:-}"
+FRONTEND_EXPLICIT="${2:-}"
 
 LOG_BACKEND="/tmp/garda-cyber-backend.log"
 LOG_FRONTEND="/tmp/garda-cyber-frontend.log"
@@ -55,6 +67,55 @@ done
 # --- Cek Node ---
 command -v node >/dev/null 2>&1 || gagal "Node.js tidak ditemukan di PATH. Instal Node.js 20+: https://nodejs.org/"
 node --version
+
+# --- Matikan server GARDA lama (kalau ada) supaya port lepas ---
+# pkill -P ikut mematikan anak-anaknya (uvicorn --reload worker, vite
+# hasil spawn npm) supaya tidak ada proses yatim yang pegang port.
+for f in "$PID_BACKEND" "$PID_FRONTEND"; do
+  if [ -f "$f" ] && kill -0 "$(cat "$f")" 2>/dev/null; then
+    p="$(cat "$f")"
+    echo "[INFO] Server lama masih hidup (PID $p) -- dimatikan dulu."
+    pkill -TERM -P "$p" 2>/dev/null
+    kill "$p" 2>/dev/null
+    sleep 1
+  fi
+done
+# Pidfile yang tertinggal untuk PID mati tidak membahayakan -- sudah dibersihkan.
+rm -f "$PID_BACKEND" "$PID_FRONTEND"
+
+# --- Pilih port bebas (auto-pick kalau default sedang sibuk) ---
+port_sibuk() {
+  # 0 (true) = sibuk, 1 (false) = bebas. ss -> netstat -> connect Python.
+  if command -v ss >/dev/null 2>&1; then
+    ss -tln 2>/dev/null | grep -qE "[:.]$1[[:space:]]" && return 0
+    return 1
+  fi
+  if command -v netstat >/dev/null 2>&1; then
+    netstat -tln 2>/dev/null | grep -qE "[:.]$1[[:space:]]" && return 0
+    return 1
+  fi
+  "$PYTHON" -c "import socket,sys; s=socket.socket(); sys.exit(0 if s.connect_ex(('127.0.0.1',$1))==0 else 1)" 2>/dev/null
+}
+
+pilih_port() {
+  # $1 = port default, $2 = label, $3 = "eksplisit" kalau port dari argumen.
+  # Eksplisit: sibuk -> error jelas (tidak ditebak ulang). Auto: naik sampai bebas.
+  local port="$1" label="$2" mode="$3"
+  if [ "$mode" = "eksplisit" ]; then
+    if port_sibuk "$port"; then
+      gagal "Port $port untuk $label sudah dipakai. Beri port bebas: bash setup.sh <port_backend> <port_frontend>."
+    fi
+  else
+    while port_sibuk "$port"; do
+      port=$((port + 1))
+    done
+  fi
+  printf '%s' "$port"
+}
+
+BACKEND_PORT="$(pilih_port "$BACKEND_PORT" "backend" "${BACKEND_EXPLICIT:+eksplisit}")" || exit 1
+FRONTEND_PORT="$(pilih_port "$FRONTEND_PORT" "frontend" "${FRONTEND_EXPLICIT:+eksplisit}")" || exit 1
+echo "[INFO] Port terpilih: backend $BACKEND_PORT, frontend $FRONTEND_PORT."
 
 echo ""
 echo "[1/4] Persiapan virtual environment backend..."
@@ -90,20 +151,21 @@ else
   echo "       Pastikan URL itu menunjuk ke backend di port $BACKEND_PORT."
 fi
 
-echo "[4/4] Menjalankan server..."
+# CORS: backend mengizinkan asal frontend lewat FRONTEND_ORIGIN (tidak ada
+# vite proxy). Baris localhost diperbarui otomatis; kalau sudah diarahkan ke
+# domain lain (production), biarkan tapi peringatkan.
+if grep -q '^FRONTEND_ORIGIN=http://localhost:' backend/.env; then
+  env_tmp="$(mktemp)"
+  awk -v url="FRONTEND_ORIGIN=http://localhost:$FRONTEND_PORT,http://127.0.0.1:$FRONTEND_PORT" \
+    '{ if ($0 ~ /^FRONTEND_ORIGIN=/) print url; else print $0 }' \
+    backend/.env >"$env_tmp" && mv "$env_tmp" backend/.env
+  echo "[INFO] backend/.env FRONTEND_ORIGIN mengizinkan frontend di port $FRONTEND_PORT."
+else
+  echo "[WARN] backend/.env punya FRONTEND_ORIGIN non-default -- tidak diubah."
+  echo "       Pastikan origin frontend (port $FRONTEND_PORT) ada di dalamnya."
+fi
 
-# Kalau PID lama masih hidup, matikan dulu agar port tidak bentrok.
-# pkill -P ikut mematikan anak-anaknya (uvicorn --reload worker, vite
-# hasil spawn npm) supaya tidak ada proses yatim yang pegang port.
-for f in "$PID_BACKEND" "$PID_FRONTEND"; do
-  if [ -f "$f" ] && kill -0 "$(cat "$f")" 2>/dev/null; then
-    p="$(cat "$f")"
-    echo "[INFO] Server lama masih hidup (PID $p) -- dimatikan dulu."
-    pkill -TERM -P "$p" 2>/dev/null
-    kill "$p" 2>/dev/null
-    sleep 1
-  fi
-done
+echo "[4/4] Menjalankan server..."
 
 # Catatan: "&" wajib mengikat perintah nohup saja (setelah ";"), bukan seluruh
 # list "cd && nohup". Kalau "&" di belakang AND-list, $! = PID subshell, bukan
